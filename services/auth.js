@@ -10,7 +10,7 @@ const config = require('config');
 async function main(username, password) {
 	const browser = await puppeteer.launch({
 		args: ['--disable-features=site-per-process'], 
-		headless: false,
+		headless: true,
 		defaultViewport: null,
 	});
 
