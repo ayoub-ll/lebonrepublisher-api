@@ -7,26 +7,27 @@ const pixelmatch = require('pixelmatch');
 const { cv } = require('opencv-wasm');
 const config = require('config');
 
-let token = null;
+async function main(username, password) {
+	const browser = await puppeteer.launch({
+		args: ['--disable-features=site-per-process'], 
+		headless: false,
+		defaultViewport: null,
+	});
 
-async function main() {
-  const browser = await puppeteer.launch({
-    args: ['--disable-features=site-per-process'], 
-	headless: false,
-	defaultViewport: null,
-  });
   	const page = await browser.newPage();
     await page.setRequestInterception(true);
 
-    await page.on('request', request => {
-        let auth = request.headers()['authorization']
-        if (config.get("lbc_token_endpoint_regex").match(request.url()) && token == null && auth != null) {
-            token = auth;
-            return auth;
-        }
-        request.continue();
-      });
-
+	const token = new Promise(resolve =>
+		page.on('request', request => {
+			let auth = request.headers()['authorization']
+		  if (config.get("lbc_token_endpoint_regex").match(request.url()) && auth != null) {
+			resolve(auth);
+		  }
+		  request.continue();
+		})
+	  );
+	
+	  
 	await page.goto(config.get("lbc_login_url"), { waitUntil: 'domcontentloaded' });
 	await page.waitForTimeout(3 * 1000)
     
@@ -44,22 +45,24 @@ async function main() {
             await console.log("CAPTCHA DETECTED")
             await captcha(frame, cptchFr)
         } else {
-            await completeForm(page)
+            await completeForm(page, username, password)
             await page.waitForTimeout(2000);
         }
     } else {
-        await completeForm(page)
+        await completeForm(page, username, password)
     }
+
+	return await token
 }
 
-async function completeForm(page) {
+async function completeForm(page, username, password) {
     await page.click('input[type="email"]')
         let emailInput = await page.waitForSelector('input[type="email"]')
-        await emailInput.type(config.get("lbc_username"), {delay: 361})
+        await emailInput.type(username, {delay: 361})
 
         await page.click('input[type="password"]')
         let passwordInput = await page.waitForSelector('input[type="password"]')
-        await passwordInput.type(config.get("lbc_password"), {delay: 424})
+        await passwordInput.type(password, {delay: 424})
 
         setTimeout(() => { page.click('button[type="submit"]') ; }, 1745)
 }
