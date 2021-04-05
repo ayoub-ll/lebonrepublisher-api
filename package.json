@@ -1,0 +1,17 @@
+{
+  "name": "leboncoin-republisher-2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@extra/humanize": "^4.2.2-next.616",
+    "config": "^3.3.6",
+    "express": "^4.17.1",
+    "jimp": "^0.16.1",
+    "opencv-wasm": "^4.3.0-10",
+    "pixelmatch": "^5.2.1",
+    "puppeteer": "5",
+    "puppeteer-extra": "^3.1.16-next.149",
+    "puppeteer-extra-plugin-stealth": "^2.7.6"
+  }
+}
