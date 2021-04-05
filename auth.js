@@ -9,7 +9,7 @@ const config = require('config');
 
 let token = null;
 
-(async () => {
+async function main() {
   const browser = await puppeteer.launch({
     args: ['--disable-features=site-per-process'], 
 	headless: false,
@@ -22,7 +22,7 @@ let token = null;
         let auth = request.headers()['authorization']
         if (config.get("lbc_token_endpoint_regex").match(request.url()) && token == null && auth != null) {
             token = auth;
-            console.log(token)
+            return auth;
         }
         request.continue();
       });
@@ -50,7 +50,7 @@ let token = null;
     } else {
         await completeForm(page)
     }
-})();
+}
 
 async function completeForm(page) {
     await page.click('input[type="email"]')
@@ -241,4 +241,8 @@ async function findMyPuzzlePiecePosition(page) {
 		x: Math.floor(moment.m10 / moment.m00),
 		y: Math.floor(moment.m01 / moment.m00),
 	}
+}
+
+module.exports = {
+	main: main
 }
