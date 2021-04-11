@@ -2,15 +2,16 @@ const auth = require('./auth');
 const config = require('config');
 
 (async () => {
-    var token = await auth.main(config.get('lbc_username'), config.get('lbc_password')).then((value) => {
-        return value
+    const {token, accountId} = await auth.main(config.get('lbc_username'), config.get('lbc_password')).then((result) => {
+        console.log("result ", result)
+        return result
       });
-
-    request(token)
+    
+    request(token, accountId)
   })();
 
-function request(token) {
-    console.log("tokken ", token)
+function request(token, accountId) {
+    console.log("getAds REQUEST")
 
     const https = require('https')
     const options = {
@@ -32,10 +33,9 @@ function request(token) {
         'accept-language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
       },
     }
-    //const data = '{"AccountId":"56263908","Filters":{"Categories":[],"Keywords":"","State":null},"Format":"","Limit":100,"Page":1,"SortOrder":"Desc","SortParam":"LastToplistTime"}'
 
     const req = https.request(options, res => {
-    console.log(`statusCode: ${res.statusCode}`)
+    console.log(`getAds request statusCode: ${res.statusCode}`)
 
     res.on('data', d => {
         process.stdout.write(d) 
@@ -43,8 +43,8 @@ function request(token) {
     })
 
     req.on('error', error => {
-    console.error(error)
+    console.error("getAds request error: ", error)
     })
 
-    req.end('{"AccountId":"12341713","Filters":{"Categories":[],"Keywords":"","State":null},"Format":"","Limit":100,"Page":1,"SortOrder":"Desc","SortParam":"LastToplistTime"}')
+    req.end('{"AccountId":"' + accountId + '","Filters":{"Categories":[],"Keywords":"","State":null},"Format":"","Limit":100,"Page":1,"SortOrder":"Desc","SortParam":"LastToplistTime"}')
 }

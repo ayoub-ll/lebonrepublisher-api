@@ -9,77 +9,95 @@ const config = require('config');
 
 async function main(username, password) {
 	const browser = await puppeteer.launch({
-		args: ['--disable-features=site-per-process'], 
-		headless: true,
+		args: ['--disable-features=site-per-process'],
+		headless: false,
 		defaultViewport: null,
 	});
 
-  	const page = await browser.newPage();
-    await page.setRequestInterception(true);
+	const page = await browser.newPage();
+	await page.setRequestInterception(true);
 
 	const token = new Promise(resolve =>
 		page.on('request', request => {
 			let auth = request.headers()['authorization']
-		  if (config.get("lbc_token_endpoint_regex").match(request.url()) && auth != null) {
-			resolve(auth);
-		  }
-		  request.continue();
+			if (config.get("lbc_token_endpoint_regex").match(request.url()) && auth != null) {
+				resolve(auth);
+			}
+			request.continue();
 		})
-	  );
-	
-	  
+	);
+
+	const accountId = new Promise(resolve =>
+		page.on('response', async response => {
+			let request = response.request()
+			let storeId = null
+
+			if (config.get("lbc_token_endpoint_regex").match(request.url()) && request.method() == "GET") {
+				let responseJson = await response.json()
+				storeId = await responseJson.storeId
+				resolve(storeId)
+			}
+		})
+	);
+
 	await page.goto(config.get("lbc_login_url"), { waitUntil: 'domcontentloaded' });
 	await page.waitForTimeout(3 * 1000)
-    
-    const elementHandle = await page.$('iframe');
 
-    if (elementHandle !== null) {
-        const frame = await elementHandle.contentFrame();
-        const cptchEn = await frame.$('[aria-label="Click to verify"]');
-        const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]');
+	const elementHandle = await page.$('iframe');
 
-        if (await cptchEn !== null) {
-            await console.log("CAPTCHA DETECTED")
-            await captcha(frame, cptchEn)
-        } else if (await cptchEn !== null) {
-            await console.log("CAPTCHA DETECTED")
-            await captcha(frame, cptchFr)
-        } else {
-            await completeForm(page, username, password)
-            await page.waitForTimeout(2000);
-        }
-    } else {
-        await completeForm(page, username, password)
-    }
+	if (elementHandle !== null) {
+		const frame = await elementHandle.contentFrame();
+		const cptchEn = await frame.$('[aria-label="Click to verify"]');
+		const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]');
 
-	return await token
+		if (await cptchEn !== null) {
+			await console.log("CAPTCHA DETECTED")
+			await captcha(frame, cptchEn)
+		} else if (await cptchEn !== null) {
+			await console.log("CAPTCHA DETECTED")
+			await captcha(frame, cptchFr)
+		} else {
+			await completeForm(page, username, password)
+			await page.waitForTimeout(2000);
+		}
+	} else {
+		await completeForm(page, username, password)
+	}
+
+	return Promise.all([token, accountId])
+	.then((values) => {
+		return {token: values[0], accountId: values[1]}
+	})
+	.catch(reason => {
+		console.log("AUTH PROMISES ERROR: ", reason)
+	})
 }
 
 async function completeForm(page, username, password) {
-    await page.click('input[type="email"]')
-        let emailInput = await page.waitForSelector('input[type="email"]')
-        await emailInput.type(username, {delay: 361})
+	await page.click('input[type="email"]')
+	let emailInput = await page.waitForSelector('input[type="email"]')
+	await emailInput.type(username, { delay: 361 })
 
-        await page.click('input[type="password"]')
-        let passwordInput = await page.waitForSelector('input[type="password"]')
-        await passwordInput.type(password, {delay: 424})
+	await page.click('input[type="password"]')
+	let passwordInput = await page.waitForSelector('input[type="password"]')
+	await passwordInput.type(password, { delay: 424 })
 
-        setTimeout(() => { page.click('button[type="submit"]') ; }, 1745)
+	setTimeout(() => { page.click('button[type="submit"]'); }, 1745)
 }
 
 async function captcha(frame, cptch) {
-    await cptch.click()
+	await cptch.click()
 
-    const images = await getCaptchaImages(frame);
-    await console.log("getCaptchaImages ok");
+	const images = await getCaptchaImages(frame);
+	await console.log("getCaptchaImages ok");
 	const diffImage = await getDiffImage(images);
 	const center = await getPuzzlePieceSlotCenterPosition(diffImage);
-	
+
 	await slidePuzzlePiece(frame, center);
 }
 
 async function clickVerifyButton(page) {
-    await console.log("clickVerifyButton")
+	await console.log("clickVerifyButton")
 	await page.waitForSelector('[aria-label="Click to verify"]');
 	await page.click('[aria-label="Click to verify"]');
 	await page.waitForSelector('.geetest_canvas_img canvas', {
@@ -89,7 +107,7 @@ async function clickVerifyButton(page) {
 }
 
 async function getCaptchaImages(frame) {
-    await console.log("getCaptchaImages")
+	await console.log("getCaptchaImages")
 	const images = await frame.$$eval(
 		'.geetest_canvas_img canvas',
 		(canvases) => {
@@ -116,7 +134,7 @@ async function getCaptchaImages(frame) {
 }
 
 async function getDiffImage(images) {
-    await console.log("getDiffImage")
+	await console.log("getDiffImage")
 	const { width, height } = images.original.bitmap
 
 	// Use the pixelmatch package to create an image diff
@@ -147,7 +165,7 @@ async function getDiffImage(images) {
 }
 
 async function getPuzzlePieceSlotCenterPosition(diffImage) {
-    await console.log("getPuzzlePieceSlotCenterPosition")
+	await console.log("getPuzzlePieceSlotCenterPosition")
 	const src = cv.matFromImageData(diffImage.bitmap)
 	const dst = new cv.Mat()
 
@@ -173,7 +191,7 @@ async function getPuzzlePieceSlotCenterPosition(diffImage) {
 
 	// Just for fun, let's draw the contours and center on a new image.
 	cv.cvtColor(dst, dst, cv.COLOR_GRAY2BGR);
-	const red = new cv.Scalar(255,0,0);
+	const red = new cv.Scalar(255, 0, 0);
 	cv.drawContours(dst, contours, 0, red);
 	cv.circle(dst, new cv.Point(cx, cy), 3, red);
 	new Jimp({
@@ -195,7 +213,7 @@ async function slidePuzzlePiece(page, center) {
 	let handleX = handle.x + handle.width / 2;
 	let handleY = handle.y + handle.height / 2;
 
-	await page.mouse.move(handleX, handleY, { steps: 25} );
+	await page.mouse.move(handleX, handleY, { steps: 25 });
 	await page.mouse.down();
 
 	let destX = handleX + center.x;
