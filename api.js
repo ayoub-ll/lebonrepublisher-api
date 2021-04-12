@@ -6,21 +6,25 @@ const port = 3000
 
 app.use(express.json())
 
-app.post('/auth', (req, res) => {
-  let email = req.body.email
-  let password = req.body.password
+app.post('/auth', async (req, res) => {
+  let email = await req.body.email
+  let password = await req.body.password
 
-  if (email == null || password == null ) {
+  if (email == null || password == null) {
     res.status(401).json({ error: 'Account not found' })
     res.send()
   }
 
-  const { token, accountId } = auth.getToken(config.get('lbc_username'), config.get('lbc_password')).then((result) => {
+  const { token, accountId } = await auth.getToken(email, password).then((result) => {
     return result
   });
 
-  console.log(token)
+  if (token == null) {
+    res.status(500).json({ error: 'Token null' })
+    res.send()
+  }
 
+  res.status(200)
   res.send(token)
 })
 
