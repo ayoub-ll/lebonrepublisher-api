@@ -6,11 +6,19 @@ const port = 3000
 
 app.use(express.json())
 
+// auth middleware: check auth api-key 
+app.use(function(req, res, next) {
+  if (!req.headers.apikey || req.headers.apikey != config.get('apikey')) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  next();
+});
+
 app.post('/auth', async (req, res) => {
   let email = await req.body.email
   let password = await req.body.password
 
-  if (email == null || password == null) {
+  if (!email || !password) {
     res.status(401).json({ error: 'Account not found' })
     res.send()
   }
@@ -19,7 +27,7 @@ app.post('/auth', async (req, res) => {
     return result
   });
 
-  if (token == null) {
+  if (!token) {
     res.status(500).json({ error: 'Token null' })
     res.send()
   }
