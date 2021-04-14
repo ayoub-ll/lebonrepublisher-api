@@ -1,8 +1,7 @@
-const auth = require('./auth');
-const config = require('config');
+const auth = require('./authService');
 
 (async () => {
-    const {token, accountId} = await auth.getToken(config.get('lbc_username'), config.get('lbc_password')).then((result) => {
+    const {token, accountId} = await auth.getToken(process.env.lbc_username, process.env.lbc_password).then((result) => {
         console.log("result ", result)
         return result
       });

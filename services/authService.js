@@ -5,12 +5,11 @@ puppeteer.use(StealthPlugin())
 const Jimp = require('jimp');
 const pixelmatch = require('pixelmatch');
 const { cv } = require('opencv-wasm');
-const config = require('config');
 
 async function main(username, password) {
 	const browser = await puppeteer.launch({
 		args: ['--disable-features=site-per-process'],
-		headless: true,
+		headless: false,
 		defaultViewport: null,
 	});
 
@@ -20,7 +19,7 @@ async function main(username, password) {
 	const token = new Promise(resolve =>
 		page.on('request', request => {
 			let auth = request.headers()['authorization']
-			if (config.get("lbc_token_endpoint_regex").match(request.url()) && auth != null) {
+			if (process.env.lbc_token_endpoint_regex.match(request.url()) && auth != null) {
 				resolve(auth);
 			}
 			request.continue();
@@ -32,7 +31,7 @@ async function main(username, password) {
 			let request = response.request()
 			let storeId = null
 
-			if (config.get("lbc_token_endpoint_regex").match(request.url()) && request.method() == "GET") {
+			if (process.env.lbc_token_endpoint_regex.match(request.url()) && request.method() == "GET") {
 				let responseJson = await response.json()
 				storeId = await responseJson.storeId
 				resolve(storeId)
@@ -40,20 +39,23 @@ async function main(username, password) {
 		})
 	);
 
-	await page.goto(config.get("lbc_login_url"), { waitUntil: 'domcontentloaded' });
+	await page.goto(process.env.lbc_login_url, { waitUntil: 'domcontentloaded' });
 	await page.waitForTimeout(3 * 1000)
 
 	const elementHandle = await page.$('iframe');
 
 	if (elementHandle !== null) {
+		console.log("L.48")
 		const frame = await elementHandle.contentFrame();
 		const cptchEn = await frame.$('[aria-label="Click to verify"]');
 		const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]');
 
 		if (await cptchEn !== null) {
+			console.log("L.54")
 			await console.log("CAPTCHA DETECTED")
 			await captcha(frame, cptchEn)
 		} else if (await cptchEn !== null) {
+			console.log("L.58")
 			await console.log("CAPTCHA DETECTED")
 			await captcha(frame, cptchFr)
 		} else {
@@ -66,6 +68,7 @@ async function main(username, password) {
 
 	return Promise.all([token, accountId])
 	.then((values) => {
+		console.log("Token + accountId promises OK")
 		return {token: values[0], accountId: values[1]}
 	})
 	.catch(reason => {
