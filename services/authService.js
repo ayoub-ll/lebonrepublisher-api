@@ -19,7 +19,7 @@ async function main(username, password) {
 	const token = new Promise(resolve =>
 		page.on('request', request => {
 			let auth = request.headers()['authorization']
-			if (process.env.lbc_token_endpoint_regex.match(request.url()) && auth != null) {
+			if (process.env.lbc_token_endpoint_regex == request.url() && auth != null) {
 				resolve(auth);
 			}
 			request.continue();
@@ -31,7 +31,7 @@ async function main(username, password) {
 			let request = response.request()
 			let storeId = null
 
-			if (process.env.lbc_token_endpoint_regex.match(request.url()) && request.method() == "GET") {
+			if (process.env.lbc_token_endpoint_regex == request.url() && request.method() == "GET") {
 				let responseJson = await response.json()
 				storeId = await responseJson.storeId
 				resolve(storeId)
@@ -45,7 +45,6 @@ async function main(username, password) {
 	const elementHandle = await page.$('iframe');
 
 	if (elementHandle !== null) {
-		console.log("L.48")
 		const frame = await elementHandle.contentFrame();
 		const cptchEn = await frame.$('[aria-label="Click to verify"]');
 		const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]');
@@ -111,6 +110,7 @@ async function clickVerifyButton(page) {
 
 async function getCaptchaImages(frame) {
 	await console.log("getCaptchaImages")
+	
 	const images = await frame.$$eval(
 		'.geetest_canvas_img canvas',
 		(canvases) => {
@@ -124,7 +124,10 @@ async function getCaptchaImages(frame) {
 			})
 		}
 	);
+	
+	console.log("images: ", images)
 
+	
 	// For each base64 string create a Javascript buffer.
 	const buffers = images.map((img) => new Buffer(img, 'base64'));
 
