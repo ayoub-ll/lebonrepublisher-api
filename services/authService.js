@@ -12,7 +12,7 @@ const timeout = (prom, time) =>
 async function main(username, password) {
   const browser = await puppeteer.launch({
     args: ['--disable-features=site-per-process'],
-    headless: true,
+    headless: false,
     defaultViewport: null,
   })
 
@@ -52,7 +52,7 @@ async function main(username, password) {
   )
 
   await page.goto(process.env.lbc_login_url, { waitUntil: 'domcontentloaded' })
-  await page.waitForTimeout(2 * 1000)
+  await page.waitForTimeout(4 * 1000)
 
   const elementHandle = await page.$('iframe')
 
@@ -62,13 +62,13 @@ async function main(username, password) {
     const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]')
 
     if ((await cptchEn) !== null) {
-      console.log('L.54')
       await console.log('CAPTCHA DETECTED')
-      await captcha(frame, cptchEn)
+      await clickVerifyButton(frame)
+      await captcha(page, frame)
     } else if ((await cptchEn) !== null) {
-      console.log('L.58')
       await console.log('CAPTCHA DETECTED')
-      await captcha(frame, cptchFr)
+      await clickVerifyButton(frame)
+      await captcha(page, frame)
     } else {
       await completeForm(page, username, password)
       await page.waitForTimeout(2000)
@@ -80,11 +80,13 @@ async function main(username, password) {
   return Promise.all([token, accountId])
     .then((values) => {
       console.log('Token + accountId promises OK')
+      browser.close()
       return { token: values[0], accountId: values[1] }
     })
     .catch((reason) => {
       console.log('AUTH PROMISES ERROR: ', reason)
-	  return 404
+      browser.close()
+	    return 404
     })
 }
 
@@ -102,15 +104,13 @@ async function completeForm(page, username, password) {
   }, 1745)
 }
 
-async function captcha(frame, cptch) {
-  await cptch.click()
-
+async function captcha(page, frame) {
   const images = await getCaptchaImages(frame)
   await console.log('getCaptchaImages ok')
   const diffImage = await getDiffImage(images)
   const center = await getPuzzlePieceSlotCenterPosition(diffImage)
 
-  await slidePuzzlePiece(frame, center)
+  await slidePuzzlePiece(page, frame, center)
 }
 
 async function clickVerifyButton(page) {
@@ -124,7 +124,7 @@ async function clickVerifyButton(page) {
 }
 
 async function getCaptchaImages(frame) {
-  await console.log('getCaptchaImages')
+  console.log('getCaptchaImages')
 
   const images = await frame.$$eval(
     '.geetest_canvas_img canvas',
@@ -138,11 +138,9 @@ async function getCaptchaImages(frame) {
     },
   )
 
-  console.log('images: ', images)
-
   // For each base64 string create a Javascript buffer.
   const buffers = images.map((img) => new Buffer(img, 'base64'))
-
+  console.log("buffers length: ", buffers.length)
   // And read each buffer into a Jimp image.
   return {
     captcha: await Jimp.read(buffers[0]),
@@ -224,33 +222,33 @@ async function getPuzzlePieceSlotCenterPosition(diffImage) {
   }
 }
 
-async function slidePuzzlePiece(page, center) {
-  const sliderHandle = await page.$('.geetest_slider_button')
+async function slidePuzzlePiece(page, frame, center) {
+  const sliderHandle = await frame.$('.geetest_slider_button') //frame
   const handle = await sliderHandle.boundingBox()
 
   let handleX = handle.x + handle.width / 2
   let handleY = handle.y + handle.height / 2
 
-  await page.mouse.move(handleX, handleY, { steps: 25 })
-  await page.mouse.down()
+  await page.mouse.move(handleX, handleY, { steps: 21 }) //page
+  await page.mouse.down() //page
 
   let destX = handleX + center.x
   let destY = handle.y + handle.height / 3
-  await page.mouse.move(destX, handleY, { steps: 25 })
-  await page.waitForTimeout(100)
+  await page.mouse.move(destX, handleY, { steps: 37 }) //page
+  await page.waitForTimeout(100)  //page
 
   // find the location of my puzzle piece.
-  const puzzlePos = await findMyPuzzlePiecePosition(page)
+  const puzzlePos = await findMyPuzzlePiecePosition(page, frame)
   destX = destX + center.x - puzzlePos.x
   destY = handle.y + handle.height / 2
-  await page.mouse.move(destX, destY, { steps: 25 })
+  await page.mouse.move(destX, destY, { steps: 11 })
   await page.mouse.up()
 }
 
-async function findMyPuzzlePiecePosition(page) {
+async function findMyPuzzlePiecePosition(page, frame) {
   // Must call the getCaptchaImages again, because we have changed the
   // slider position (and therefore the image)
-  const images = await getCaptchaImages(page)
+  const images = await getCaptchaImages(frame)
   const srcPuzzleImage = images.puzzle
   const srcPuzzle = cv.matFromImageData(srcPuzzleImage.bitmap)
   const dstPuzzle = new cv.Mat()

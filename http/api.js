@@ -4,7 +4,7 @@ const auth = require('../services/authService')
 const getAdsService = require('../services/getAdsService')
 const apikeyMiddleware = require('./middlewares/apikeyMiddleware')
 const app = express()
-const port = 3000
+const port = 3001
 
 app.use(express.json())
 
