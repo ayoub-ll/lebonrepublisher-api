@@ -40,7 +40,7 @@ async function main(username, password) {
 	);
 
 	await page.goto(process.env.lbc_login_url, { waitUntil: 'domcontentloaded' });
-	await page.waitForTimeout(3 * 1000)
+	await page.waitForTimeout(2 * 1000)
 
 	const elementHandle = await page.$('iframe');
 
@@ -78,11 +78,11 @@ async function main(username, password) {
 async function completeForm(page, username, password) {
 	await page.click('input[type="email"]')
 	let emailInput = await page.waitForSelector('input[type="email"]')
-	await emailInput.type(username, { delay: 361 })
+	await emailInput.type(username, { delay: 100 })
 
 	await page.click('input[type="password"]')
 	let passwordInput = await page.waitForSelector('input[type="password"]')
-	await passwordInput.type(password, { delay: 424 })
+	await passwordInput.type(password, { delay: 150 })
 
 	setTimeout(() => { page.click('button[type="submit"]'); }, 1745)
 }
