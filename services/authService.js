@@ -9,7 +9,7 @@ const { cv } = require('opencv-wasm');
 async function main(username, password) {
 	const browser = await puppeteer.launch({
 		args: ['--disable-features=site-per-process'],
-		headless: false,
+		headless: true,
 		defaultViewport: null,
 	});
 

@@ -1,6 +1,7 @@
 const dotenv = require('dotenv').config()
 const express = require('express')
 const auth = require('../services/authService');
+const getAdsService = require('../services/getAdsService');
 const apikeyMiddleware = require('./middlewares/apikeyMiddleware');
 const app = express()
 const port = 3000
@@ -29,6 +30,7 @@ app.post('/auth', async (req, res) => {
   });
   
   console.log("token: ", token)
+  console.log("accountId: ", accountId)
 
   if (!token) {
     res.status(500).json({ error: 'Token null' })
@@ -36,7 +38,40 @@ app.post('/auth', async (req, res) => {
   }
 
   res.status(200)
-  res.send(token)
+  res.send({token, accountId})
+})
+
+/**
+ * POST /getAds
+ * 
+ * get ads from LBC
+ * 
+ * need:
+ * - accountId
+ * - token
+ */
+ app.post('/getAds', async (req, res) => {
+  let accountId = await req.body.accountId
+  let token = await req.body.token
+
+  if (!accountId) {
+    res.status(400).json({ error: 'accountId not found' })
+    res.send()
+  }
+
+  if (!token) {
+    res.status(401).json({ error: 'token not found' })
+    res.send()
+  }
+
+  const ads = await getAdsService.getAds(token, accountId)
+  
+  /*.then((result) => {
+    return result
+  });*/
+
+  res.status(200)
+  res.send(ads)
 })
 
 app.listen(port, () => {
