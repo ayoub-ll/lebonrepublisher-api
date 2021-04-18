@@ -32,7 +32,7 @@ async function main(username, password) {
         request.continue()
       }),
     ),
-    30000,
+    500000, //TODO: SET timeout to 30 sec
   )
 
   const accountId = new Promise((resolve) =>
@@ -61,17 +61,36 @@ async function main(username, password) {
     const cptchEn = await frame.$('[aria-label="Click to verify"]')
     const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]')
 
-    if ((await cptchEn) !== null) {
-      await console.log('CAPTCHA DETECTED')
-      await clickVerifyButton(frame)
+    if ((await cptchFr) !== null) {
+      await console.log('FR CAPTCHA DETECTED')
+      await clickVerifyButton(frame, false)
       await captcha(page, frame)
-      await page.waitForTimeout(2000)
+      await page.waitForTimeout(4000)
+
+      while (isCaptchaFailed(frame)) {
+        await page.waitForTimeout(
+          Math.floor(Math.random() * (4500 - 2100 + 1) + 2100),
+        )
+        await clickVerifyButton(frame, true)
+        await captcha(page, frame)
+      }
+
       await completeForm(page, username, password)
     } else if ((await cptchEn) !== null) {
-      await console.log('CAPTCHA DETECTED')
-      await clickVerifyButton(frame)
+      await console.log('EN CAPTCHA DETECTED')
+      await clickVerifyButton(frame, false)
       await captcha(page, frame)
-      await page.waitForTimeout(2000)
+      await page.waitForTimeout(4000)
+
+      while (isCaptchaFailed(frame)) {
+        await page.waitForTimeout(
+          Math.floor(Math.random() * (4500 - 2100 + 1) + 2100),
+        )
+        await clickVerifyButton(frame, true)
+        await captcha(page, frame)
+      }
+      
+      await page.waitForTimeout(3000)
       await completeForm(page, username, password)
     } else {
       await completeForm(page, username, password)
@@ -90,8 +109,29 @@ async function main(username, password) {
     .catch((reason) => {
       console.log('AUTH PROMISES ERROR: ', reason)
       browser.close()
-	    return 404
+      return 404
     })
+}
+
+async function isCaptchaFailed(frame) {
+  await frame.waitForSelector('.geetest_radar_tip_content')
+  const captchaContent = await frame.$('.geetest_radar_tip_content')
+  console.log(
+    'captchaContent: ',
+    await frame.evaluate((el) => el.textContent, captchaContent),
+  )
+
+  if (
+    (await frame.evaluate((el) => el.textContent, captchaContent)) ==
+      'Network failure' ||
+    (await frame.evaluate((el) => el.textContent, captchaContent)) == 'Erreur'
+  ) {
+    console.log('Network failure DETECTED')
+    return true
+  }
+
+  console.log('No captcha failed detected')
+  return false
 }
 
 async function completeForm(page, username, password) {
@@ -117,10 +157,17 @@ async function captcha(page, frame) {
   await slidePuzzlePiece(page, frame, center)
 }
 
-async function clickVerifyButton(page) {
+async function clickVerifyButton(page, fail) {
   await console.log('clickVerifyButton')
-  await page.waitForSelector('[aria-label="Click to verify"]')
-  await page.click('[aria-label="Click to verify"]')
+
+  if (fail) {
+    await page.waitForSelector('.geetest_reset_tip_content')
+    await page.click('.geetest_reset_tip_content')
+  } else {
+    await page.waitForSelector('[aria-label="Click to verify"]')
+    await page.click('[aria-label="Click to verify"]')
+  }
+
   await page.waitForSelector('.geetest_canvas_img canvas', {
     visible: true,
   })
@@ -144,7 +191,7 @@ async function getCaptchaImages(frame) {
 
   // For each base64 string create a Javascript buffer.
   const buffers = images.map((img) => new Buffer(img, 'base64'))
-  console.log("buffers length: ", buffers.length)
+  console.log('buffers length: ', buffers.length)
   // And read each buffer into a Jimp image.
   return {
     captcha: await Jimp.read(buffers[0]),
@@ -233,21 +280,27 @@ async function slidePuzzlePiece(page, frame, center) {
   let handleX = handle.x + handle.width / 2
   let handleY = handle.y + handle.height / 2
 
-  await page.mouse.move(handleX, handleY, { steps: (Math.floor(Math.random()*(35-10+1)+10)) }) //page
+  await page.mouse.move(handleX, handleY, {
+    steps: Math.floor(Math.random() * (35 - 10 + 1) + 10),
+  }) //page
   await page.mouse.down() //page
 
   let destX = handleX + center.x
   let destY = handle.y + handle.height / 3
-  console.log("1. destX, destY", destX, destY)
-  await page.mouse.move(destX, handleY, { steps: (Math.floor(Math.random()*(79-25+1)+25)) }) //page
-  await page.waitForTimeout((Math.floor(Math.random()*(550-89+1)+89)))  //page
+
+  await page.mouse.move(destX, handleY, {
+    steps: Math.floor(Math.random() * (59 - 25 + 1) + 25),
+  }) //page
+  await page.waitForTimeout(Math.floor(Math.random() * (550 - 89 + 1) + 89)) //page
 
   // find the location of my puzzle piece.
   const puzzlePos = await findMyPuzzlePiecePosition(page, frame)
   destX = destX + center.x - puzzlePos.x
   destY = handle.y + handle.height / 2
-  console.log("2. destX, destY", destX, destY)
-  await page.mouse.move(destX, destY, { steps: (Math.floor(Math.random()*(19-10+1)+10)) })
+
+  await page.mouse.move(destX, destY, {
+    steps: Math.floor(Math.random() * (19 - 10 + 1) + 10),
+  })
   await page.mouse.up()
 }
 
