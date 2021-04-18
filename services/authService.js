@@ -281,17 +281,17 @@ async function slidePuzzlePiece(page, frame, center) {
   let handleY = handle.y + handle.height / 2
 
   await page.mouse.move(handleX, handleY, {
-    steps: Math.floor(Math.random() * (35 - 10 + 1) + 10),
-  }) //page
-  await page.mouse.down() //page
+    steps: 25,
+  })
+  await page.mouse.down()
 
   let destX = handleX + center.x
   let destY = handle.y + handle.height / 3
 
   await page.mouse.move(destX, handleY, {
-    steps: Math.floor(Math.random() * (59 - 25 + 1) + 25),
-  }) //page
-  await page.waitForTimeout(Math.floor(Math.random() * (550 - 89 + 1) + 89)) //page
+    steps: 25,
+  })
+  await page.waitForTimeout(100)
 
   // find the location of my puzzle piece.
   const puzzlePos = await findMyPuzzlePiecePosition(page, frame)
@@ -299,7 +299,7 @@ async function slidePuzzlePiece(page, frame, center) {
   destY = handle.y + handle.height / 2
 
   await page.mouse.move(destX, destY, {
-    steps: Math.floor(Math.random() * (19 - 10 + 1) + 10),
+    steps: 25,
   })
   await page.mouse.up()
 }
