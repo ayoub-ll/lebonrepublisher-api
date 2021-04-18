@@ -20,7 +20,7 @@ async function main(username, password) {
     })
 
     const page = await browser.newPage()
-    cursor = ghostCursor.createCursor(page)
+    cursor = await ghostCursor.createCursor(page)
     await ghostCursor.installMouseHelper(page)
     await page.setRequestInterception(true)
 
@@ -37,7 +37,7 @@ async function main(username, password) {
                 request.continue()
             }),
         ),
-        500000, //TODO: SET timeout to 30 sec
+        55000, //
     )
 
     const accountId = new Promise((resolve) =>
@@ -67,6 +67,9 @@ async function main(username, password) {
         const cptchEn = await frame.$('[aria-label="Click to verify"]')
         const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]')
 
+        // Mouve mouse
+        await cursor.moveTo({x: 15, y: 25})
+
         /* FR CAPTCHA DETECTED ZONE */
         if ((await cptchFr) !== null || (await cptchEn) !== null) {
             await console.log('CAPTCHA DETECTED')
@@ -74,14 +77,14 @@ async function main(username, password) {
             await captcha(page, frame)
             await page.waitForTimeout(4000)
 
-            while (await isCaptchaFailed(page, frame)) {
+            while (await isCaptchaFailed(page)) {
+                console.log("IN WHILE")
                 await page.waitForTimeout(
                     Math.floor(Math.random() * (4500 - 2100 + 1) + 2100),
                 )
                 await clickVerifyButton(frame, true)
                 await captcha(page, frame)
             }
-
             console.log("AFTER WHILE")
         }
     }
@@ -101,7 +104,7 @@ async function main(username, password) {
         })
 }
 
-function isCaptchaFailed(page, frame) {
+function isCaptchaFailed(page) {
     return page.waitForSelector('input[type="email"]', {timeout: 3500})
         .then(() => {
             console.log("NO CAPTCHA FAIL DETECTED")
@@ -123,13 +126,14 @@ async function completeForm(page, username, password) {
     await passwordInput.type(password, {delay: Math.floor(Math.random() * (250 - 100 + 1) + 100)})
 
     setTimeout(() => {
-        cursor.click('button[type="submit"]')
+        page.keyboard.press('Enter');
     }, 1745)
+
 }
 
 async function captcha(page, frame) {
     const images = await getCaptchaImages(frame)
-    await console.log('getCaptchaImages ok')
+    console.log('getCaptchaImages ok')
     const diffImage = await getDiffImage(images)
     const center = await getPuzzlePieceSlotCenterPosition(diffImage)
 
@@ -137,24 +141,25 @@ async function captcha(page, frame) {
 }
 
 async function clickVerifyButton(frame, fail) {
-    await console.log('clickVerifyButton')
+    console.log('clickVerifyButton')
 
     if (fail) {
-        await frame.waitForSelector('.geetest_reset_tip_content')
-        await cursor.click('.geetest_reset_tip_content')
+        const geeTestResetTipContent = await frame.waitForSelector('.geetest_reset_tip_content')
+        await cursor.click(geeTestResetTipContent)
     } else {
-        await frame.waitForSelector('[aria-label="Click to verify"]')
-        await cursor.click('[aria-label="Click to verify"]')
+        const clickToverify = await frame.waitForSelector('[aria-label="Click to verify"]')
+        console.log("'Click to verify' selector waited")
+        await cursor.move(clickToverify)
+        await cursor.click(clickToverify)
     }
 
-    await page.waitForSelector('.geetest_canvas_img canvas', {
-        visible: true,
-    })
-    await page.waitForTimeout(1000)
+    await frame.waitForTimeout(1000)
 }
 
 async function getCaptchaImages(frame) {
     console.log('getCaptchaImages')
+
+    await frame.waitForSelector('.geetest_canvas_img canvas')
 
     const images = await frame.$$eval(
         '.geetest_canvas_img canvas',
@@ -254,7 +259,8 @@ async function getPuzzlePieceSlotCenterPosition(diffImage) {
 
 async function slidePuzzlePiece(page, frame, center) {
     console.log("slidePuzzlePiece")
-    const sliderHandle = await frame.$('.geetest_slider_button') //frame
+
+    const sliderHandle = await frame.$('.geetest_slider_button')
     const handle = await sliderHandle.boundingBox()
 
     let handleX = handle.x + handle.width / 2
