@@ -65,10 +65,14 @@ async function main(username, password) {
       await console.log('CAPTCHA DETECTED')
       await clickVerifyButton(frame)
       await captcha(page, frame)
+      await page.waitForTimeout(2000)
+      await completeForm(page, username, password)
     } else if ((await cptchEn) !== null) {
       await console.log('CAPTCHA DETECTED')
       await clickVerifyButton(frame)
       await captcha(page, frame)
+      await page.waitForTimeout(2000)
+      await completeForm(page, username, password)
     } else {
       await completeForm(page, username, password)
       await page.waitForTimeout(2000)
@@ -91,12 +95,12 @@ async function main(username, password) {
 }
 
 async function completeForm(page, username, password) {
-  await page.click('input[type="email"]')
   let emailInput = await page.waitForSelector('input[type="email"]')
+  await page.click('input[type="email"]')
   await emailInput.type(username, { delay: 100 })
 
-  await page.click('input[type="password"]')
   let passwordInput = await page.waitForSelector('input[type="password"]')
+  await page.click('input[type="password"]')
   await passwordInput.type(password, { delay: 150 })
 
   setTimeout(() => {
@@ -229,19 +233,21 @@ async function slidePuzzlePiece(page, frame, center) {
   let handleX = handle.x + handle.width / 2
   let handleY = handle.y + handle.height / 2
 
-  await page.mouse.move(handleX, handleY, { steps: 21 }) //page
+  await page.mouse.move(handleX, handleY, { steps: (Math.floor(Math.random()*(35-10+1)+10)) }) //page
   await page.mouse.down() //page
 
   let destX = handleX + center.x
   let destY = handle.y + handle.height / 3
-  await page.mouse.move(destX, handleY, { steps: 37 }) //page
-  await page.waitForTimeout(100)  //page
+  console.log("1. destX, destY", destX, destY)
+  await page.mouse.move(destX, handleY, { steps: (Math.floor(Math.random()*(79-25+1)+25)) }) //page
+  await page.waitForTimeout((Math.floor(Math.random()*(550-89+1)+89)))  //page
 
   // find the location of my puzzle piece.
   const puzzlePos = await findMyPuzzlePiecePosition(page, frame)
   destX = destX + center.x - puzzlePos.x
   destY = handle.y + handle.height / 2
-  await page.mouse.move(destX, destY, { steps: 11 })
+  console.log("2. destX, destY", destX, destY)
+  await page.mouse.move(destX, destY, { steps: (Math.floor(Math.random()*(19-10+1)+10)) })
   await page.mouse.up()
 }
 
