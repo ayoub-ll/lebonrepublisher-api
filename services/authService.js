@@ -1,3 +1,4 @@
+const ghostCursor = require("ghost-cursor")
 const puppeteer = require('puppeteer-extra')
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin())
@@ -17,6 +18,7 @@ async function main(username, password) {
   })
 
   const page = await browser.newPage()
+  await ghostCursor.installMouseHelper(page)
   await page.setRequestInterception(true)
 
   const token = timeout(
@@ -274,23 +276,21 @@ async function getPuzzlePieceSlotCenterPosition(diffImage) {
 }
 
 async function slidePuzzlePiece(page, frame, center) {
+  console.log("slidePuzzlePiece")
   const sliderHandle = await frame.$('.geetest_slider_button') //frame
   const handle = await sliderHandle.boundingBox()
+  const cursor = await ghostCursor.createCursor(page)
 
   let handleX = handle.x + handle.width / 2
   let handleY = handle.y + handle.height / 2
 
-  await page.mouse.move(handleX, handleY, {
-    steps: 25,
-  })
+  await cursor.moveTo({x: handleX, y: handleY})
   await page.mouse.down()
 
   let destX = handleX + center.x
   let destY = handle.y + handle.height / 3
 
-  await page.mouse.move(destX, handleY, {
-    steps: 25,
-  })
+  await cursor.moveTo({x: destX, y: handleY})
   await page.waitForTimeout(100)
 
   // find the location of my puzzle piece.
@@ -298,9 +298,7 @@ async function slidePuzzlePiece(page, frame, center) {
   destX = destX + center.x - puzzlePos.x
   destY = handle.y + handle.height / 2
 
-  await page.mouse.move(destX, destY, {
-    steps: 25,
-  })
+  await cursor.moveTo({x: destX, y: destY})
   await page.mouse.up()
 }
 
