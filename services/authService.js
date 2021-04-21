@@ -59,39 +59,11 @@ async function main(username, password) {
     await page.goto(process.env.lbc_login_url, {waitUntil: 'domcontentloaded'})
     await page.waitForTimeout(4 * 1000)
 
-    const elementHandle = await page.$('iframe')
-
-    /* CAPTCHA DETECTED ZONE */
-    if (elementHandle !== null) {
-        const frame = await elementHandle.contentFrame()
-        const cptchEn = await frame.$('[aria-label="Click to verify"]')
-        const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]')
-
-        // Mouve mouse
-        await cursor.moveTo({x: Math.floor(Math.random() * (1150 - 15 + 1) + 15), y: Math.floor(Math.random() * (800 - 25 + 1) + 25)})
-
-        /* FR CAPTCHA DETECTED ZONE */
-        if ((await cptchFr) !== null || (await cptchEn) !== null) {
-            await console.log('CAPTCHA DETECTED')
-            await clickVerifyButton(frame, false)
-            await captcha(page, frame)
-            await page.waitForTimeout(4000)
-
-            while (await isCaptchaFailed(page)) {
-                console.log("IN WHILE")
-                await page.waitForTimeout(
-                    Math.floor(Math.random() * (4500 - 2100 + 1) + 2100),
-                )
-                await clickVerifyButton(frame, true)
-                await captcha(page, frame)
-            }
-            console.log("AFTER WHILE")
-        }
-    }
+    await completeCaptcha(page)
 
     await completeForm(page, username, password)
 
-    //await page.waitForTimeout(2500)
+    await completeCaptcha(page)
 
     return Promise.all([token, accountId])
         .then((values) => {
@@ -104,6 +76,38 @@ async function main(username, password) {
             browser.close()
             return 404
         })
+}
+
+async function completeCaptcha(page) {
+    const elementHandle = await page.$('iframe')
+
+    /* CAPTCHA DETECTED ZONE */
+    if (elementHandle !== null) {
+        const frame = await elementHandle.contentFrame()
+        const cptchEn = await frame.$('[aria-label="Click to verify"]')
+        const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]')
+
+        // Mouve mouse
+        await cursor.moveTo({x: Math.floor(Math.random() * (750 - 15 + 1) + 15), y: Math.floor(Math.random() * (800 - 25 + 1) + 25)})
+
+        /* CAPTCHA DETECTED ZONE */
+        if ((await cptchFr) !== null || (await cptchEn) !== null) {
+            await console.log('CAPTCHA DETECTED')
+            await clickVerifyButton(frame, false)
+            await captcha(page, frame)
+            await page.waitForTimeout(4000)
+
+            while (await isCaptchaFailed(page)) {
+                console.log("IN WHILE")
+                await page.waitForTimeout(
+                    Math.floor(Math.random() * (2100 - 1000 + 1) + 1000),
+                )
+                await clickVerifyButton(frame, true)
+                await captcha(page, frame)
+            }
+            console.log("AFTER WHILE")
+        }
+    }
 }
 
 function isCaptchaFailed(page) {
@@ -125,11 +129,8 @@ async function completeForm(page, username, password) {
 
     let passwordInput = await page.waitForSelector('input[type="password"]')
     await cursor.click('input[type="password"]')
+    await page.waitForTimeout(Math.floor(Math.random() * (250 - 100 + 1) + 100))
     await passwordInput.type(password, {delay: Math.floor(Math.random() * (250 - 100 + 1) + 100)})
-
-    await page.waitForTimeout(
-        Math.floor(Math.random() * (2750 - 1000 + 1) + 1000),
-    )
 
     const submitButton = await page.waitForSelector('[type=submit]')
     await cursor.move(submitButton)
@@ -163,6 +164,7 @@ async function clickVerifyButton(frame, fail) {
 
 async function getCaptchaImages(frame) {
     console.log('getCaptchaImages')
+    console.log('geeTest_canvas_img existance: ', !frame.waitForSelector('.geetest_canvas_img canvas'))
 
     await frame.waitForSelector('.geetest_canvas_img canvas')
 
