@@ -68,7 +68,7 @@ async function main(username, password) {
         const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]')
 
         // Mouve mouse
-        await cursor.moveTo({x: 15, y: 25})
+        await cursor.moveTo({x: Math.floor(Math.random() * (1150 - 15 + 1) + 15), y: Math.floor(Math.random() * (800 - 25 + 1) + 25)})
 
         /* FR CAPTCHA DETECTED ZONE */
         if ((await cptchFr) !== null || (await cptchEn) !== null) {
@@ -90,6 +90,8 @@ async function main(username, password) {
     }
 
     await completeForm(page, username, password)
+
+    //await page.waitForTimeout(2500)
 
     return Promise.all([token, accountId])
         .then((values) => {
@@ -125,10 +127,13 @@ async function completeForm(page, username, password) {
     await cursor.click('input[type="password"]')
     await passwordInput.type(password, {delay: Math.floor(Math.random() * (250 - 100 + 1) + 100)})
 
-    setTimeout(() => {
-        page.keyboard.press('Enter');
-    }, 1745)
+    await page.waitForTimeout(
+        Math.floor(Math.random() * (2750 - 1000 + 1) + 1000),
+    )
 
+    const submitButton = await page.waitForSelector('[type=submit]')
+    await cursor.move(submitButton)
+    await cursor.click(submitButton)
 }
 
 async function captcha(page, frame) {
