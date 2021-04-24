@@ -61,6 +61,16 @@ async function main(username, password) {
 
     await completeCaptcha(page)
 
+    page.waitForSelector('#didomi-notice-disagree-button', {timeout: 3500})
+    await cursor.click('#didomi-notice-disagree-button')
+
+    await completeCaptcha(page)
+
+    page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 3500})
+    await cursor.click('button[data-qa-id="profilarea-login"]')
+
+    await completeCaptcha(page)
+
     await completeForm(page, username, password)
 
     await completeCaptcha(page)
