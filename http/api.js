@@ -73,21 +73,10 @@ app.post('/getAds', async (req, res) => {
     res.send()
   }
 
-  /*
-  const ads = await getAdsService.getAds(token, accountId)
-  console.log("adssss", ads)
-   */
-  //.then((result) => {
-    //return result
-  //});
-
   await getAdsService.getAds(token, accountId).then((result) => {
     res.status(200)
     res.send(result)
   })
-
-
-  
 })
 
 app.listen(port, () => {
