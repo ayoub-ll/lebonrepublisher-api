@@ -19,7 +19,7 @@ async function main(username, password) {
         defaultViewport: null,
     })
 
-    const page = await browser.newPage()
+    var page = await browser.newPage()
     cursor = await ghostCursor.createCursor(page)
     await ghostCursor.installMouseHelper(page)
     await page.setRequestInterception(true)
@@ -61,14 +61,15 @@ async function main(username, password) {
 
     await completeCaptcha(page)
 
-    page.waitForSelector('#didomi-notice-disagree-button', {timeout: 3500})
+    await page.waitForSelector('#didomi-notice-disagree-button', {timeout: 4000})
     await cursor.click('#didomi-notice-disagree-button')
 
     await completeCaptcha(page)
 
-    page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 3500})
+    await page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 4000})
     await cursor.click('button[data-qa-id="profilarea-login"]')
 
+    await page.waitForTimeout(3 * 1000)
     await completeCaptcha(page)
 
     await completeForm(page, username, password)
@@ -89,6 +90,7 @@ async function main(username, password) {
 }
 
 async function completeCaptcha(page) {
+    console.log("inCompleteCaptcha")
     const elementHandle = await page.$('iframe')
 
     /* CAPTCHA DETECTED ZONE */
@@ -133,6 +135,7 @@ function isCaptchaFailed(page) {
 }
 
 async function completeForm(page, username, password) {
+    console.log("inCompleteForm")
     let emailInput = await page.waitForSelector('input[type="email"]')
     await cursor.click('input[type="email"]')
     await emailInput.type(username, {delay: Math.floor(Math.random() * (250 - 100 + 1) + 100)})
