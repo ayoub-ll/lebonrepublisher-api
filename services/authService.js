@@ -62,7 +62,6 @@ async function main(username, password) {
     await page.waitForTimeout(4 * 1000)
 
     await completeCaptcha(page)
-    console.log("didomi: ", await page.$('#didomi-notice-disagree-button'))
 
     while (!(await page.$('#didomi-notice-disagree-button'))) {
         await page.waitForTimeout(2000)
@@ -185,6 +184,7 @@ async function completeForm(page, username, password) {
 
     const submitButton = await page.waitForSelector('[type=submit]')
     await cursor.move(submitButton)
+    console.log("Submit form click")
     await cursor.click(submitButton)
 }
 
