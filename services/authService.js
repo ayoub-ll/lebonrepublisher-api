@@ -1,6 +1,7 @@
 const ghostCursor = require("ghost-cursor")
 const puppeteer = require('puppeteer-extra')
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+const randomUseragent = require('random-useragent');
 puppeteer.use(StealthPlugin())
 
 const Jimp = require('jimp')
@@ -16,13 +17,14 @@ async function main(username, password) {
     const browser = await puppeteer.launch({
         args: ['--disable-features=site-per-process'],
         headless: false,
-        defaultViewport: null,
+        defaultViewport: {width: 1100, height: 768},
     })
 
     var page = await browser.newPage()
     cursor = await ghostCursor.createCursor(page)
     await ghostCursor.installMouseHelper(page)
     await page.setRequestInterception(true)
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
 
     const token = timeout(
         new Promise((resolve) =>
@@ -60,11 +62,31 @@ async function main(username, password) {
     await page.waitForTimeout(4 * 1000)
 
     await completeCaptcha(page)
+    console.log("didomi: ", await page.$('#didomi-notice-disagree-button'))
+
+    while (!(await page.$('#didomi-notice-disagree-button'))) {
+        await page.waitForTimeout(2000)
+
+        const elementHandle = await page.$('iframe')
+        const frame = await elementHandle.contentFrame()
+        const cptchEn = await frame.$('[aria-label="Click to verify"]')
+        const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]')
+
+        if (await frame && (await cptchEn || await cptchFr)) {
+            await completeCaptcha(page)
+            break;
+        }
+
+        await page.setUserAgent(randomUseragent.getRandom())
+        await page.reload({waitUntil: ["networkidle0", "domcontentloaded"]})
+    }
+
+    await completeCaptcha(page)
 
     await page.waitForSelector('#didomi-notice-disagree-button', {timeout: 4000})
     await cursor.click('#didomi-notice-disagree-button')
 
-    await completeCaptcha(page)
+    //await completeCaptcha(page)
 
     await page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 4000})
     await cursor.click('button[data-qa-id="profilarea-login"]')
@@ -74,7 +96,7 @@ async function main(username, password) {
 
     await completeForm(page, username, password)
 
-    await completeCaptcha(page)
+    //await completeCaptcha(page)
 
     return Promise.all([token, accountId])
         .then((values) => {
@@ -96,28 +118,36 @@ async function completeCaptcha(page) {
     /* CAPTCHA DETECTED ZONE */
     if (elementHandle !== null) {
         const frame = await elementHandle.contentFrame()
-        const cptchEn = await frame.$('[aria-label="Click to verify"]')
-        const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]')
 
-        // Mouve mouse
-        await cursor.moveTo({x: Math.floor(Math.random() * (750 - 15 + 1) + 15), y: Math.floor(Math.random() * (800 - 25 + 1) + 25)})
+        if (frame) {
+            const cptchEn = await frame.$('[aria-label="Click to verify"]')
+            const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]')
 
-        /* CAPTCHA DETECTED ZONE */
-        if ((await cptchFr) !== null || (await cptchEn) !== null) {
-            await console.log('CAPTCHA DETECTED')
-            await clickVerifyButton(frame, false)
-            await captcha(page, frame)
-            await page.waitForTimeout(4000)
+            if (await cptchEn || await cptchFr) {
+                // Mouve mouse
+                await cursor.moveTo({
+                    x: Math.floor(Math.random() * (750 - 15 + 1) + 15),
+                    y: Math.floor(Math.random() * (800 - 25 + 1) + 25)
+                })
 
-            while (await isCaptchaFailed(page)) {
-                console.log("IN WHILE")
-                await page.waitForTimeout(
-                    Math.floor(Math.random() * (2100 - 1000 + 1) + 1000),
-                )
-                await clickVerifyButton(frame, true)
-                await captcha(page, frame)
+                /* CAPTCHA DETECTED ZONE */
+                if ((await cptchFr) !== null || (await cptchEn) !== null) {
+                    await console.log('CAPTCHA DETECTED')
+                    await clickVerifyButton(frame, false)
+                    await captcha(page, frame)
+                    await page.waitForTimeout(4000)
+
+                    while (await isCaptchaFailed(page)) {
+                        console.log("IN WHILE")
+                        await page.waitForTimeout(
+                            Math.floor(Math.random() * (2100 - 1000 + 1) + 1000),
+                        )
+                        await clickVerifyButton(frame, true)
+                        await captcha(page, frame)
+                    }
+                    console.log("AFTER WHILE")
+                }
             }
-            console.log("AFTER WHILE")
         }
     }
 }
@@ -127,10 +157,18 @@ function isCaptchaFailed(page) {
         .then(() => {
             console.log("NO CAPTCHA FAIL DETECTED")
             return false
+
         })
         .catch(() => {
-            console.log("CAPTCHA FAIL DETECTED")
-            return true
+            page.waitForSelector('#didomi-notice-disagree-button', {timeout: 2000})
+                .then(() => {
+                    console.log("NO CAPTCHA FAIL DETECTED")
+                    return false
+                })
+                .catch(() => {
+                    console.log("CAPTCHA FAIL DETECTED")
+                    return true
+                })
         })
 }
 
