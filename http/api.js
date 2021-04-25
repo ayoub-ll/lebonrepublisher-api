@@ -2,6 +2,7 @@ const dotenv = require('dotenv').config()
 const express = require('express')
 const auth = require('../services/authService')
 const getAdsService = require('../services/getAdsService')
+const getAdInfoService = require('../services/getAdInfo')
 const apikeyMiddleware = require('./middlewares/apikeyMiddleware')
 const app = express()
 const port = 3000
@@ -82,6 +83,22 @@ app.post('/getAds', async (req, res) => {
           res.status(500)
           res.send()
         })
+})
+
+/**
+ * POST /republishAds
+ *
+ * republish ads to LBC
+ *
+ * need:
+ * - ads (array)
+ * - token
+ */
+app.post('/republishAds', async (req, res) => {
+    getAdInfoService.getAdInfo('https://www.leboncoin.fr/image_son/1971058285.htm').then((result) => {
+        res.status(200)
+        res.send(result)
+    })
 })
 
 app.listen(port, () => {

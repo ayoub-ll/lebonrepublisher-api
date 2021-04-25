@@ -1,5 +1,6 @@
 const auth = require('./authService')
 const axios = require('axios')
+const randomUseragent = require('random-useragent');
 
 function getAds(token, accountId) {
     return new Promise((resolve) =>
@@ -22,8 +23,7 @@ function getAds(token, accountId) {
                         'content-type': 'application/json;charset=UTF-8',
                         'authority': 'api.leboncoin.fr',
                         'authorization': token,
-                        'user-agent':
-                            'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.86 Safari/537.36',
+                        'user-agent': randomUseragent.getRandom(),
                         'sec-gpc': 1,
                         'origin': 'https://www.leboncoin.fr',
                         'sec-fetch-site': 'same-site',

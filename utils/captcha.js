@@ -1,154 +1,63 @@
-const ghostCursor = require("ghost-cursor")
-const puppeteer = require('puppeteer-extra')
-const StealthPlugin = require('puppeteer-extra-plugin-stealth')
-const randomUseragent = require('random-useragent');
-puppeteer.use(StealthPlugin())
-
 const Jimp = require('jimp')
 const pixelmatch = require('pixelmatch')
 const {cv} = require('opencv-wasm')
 
-const timeout = (prom, time) =>
-    Promise.race([prom, new Promise((_r, rej) => setTimeout(rej, time))])
-
-var cursor = null
-
-async function main(username, password) {
-    const browser = await puppeteer.launch({
-        args: ['--disable-features=site-per-process'],
-        headless: false,
-        defaultViewport: {width: 1100, height: 768},
+async function resolveCaptcha(page, cursor) {
+    console.log("inResolveCatpcha")
+    // Mouve mouse
+    await cursor.moveTo({
+        x: Math.floor(Math.random() * (750 - 15 + 1) + 15),
+        y: Math.floor(Math.random() * (800 - 25 + 1) + 25)
     })
+    console.log("after mouse move")
 
-    var page = await browser.newPage()
-    cursor = await ghostCursor.createCursor(page)
-    await ghostCursor.installMouseHelper(page)
-    await page.setRequestInterception(true)
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
-
-    const token = timeout(
-        new Promise((resolve) =>
-            page.on('request', (request) => {
-                let auth = request.headers()['authorization']
-                if (
-                    process.env.lbc_token_endpoint_regex == request.url() &&
-                    auth != null
-                ) {
-                    resolve(auth)
-                }
-                request.continue()
-            }),
-        ),
-        55000, //
-    )
-
-    const accountId = new Promise((resolve) =>
-        page.on('response', async (response) => {
-            let request = response.request()
-            let storeId = null
-
-            if (
-                process.env.lbc_token_endpoint_regex == request.url() &&
-                request.method() == 'GET'
-            ) {
-                let responseJson = await response.json()
-                storeId = await responseJson.storeId
-                resolve(storeId)
-            }
-        }),
-    )
-
-    await page.goto(process.env.lbc_login_url, {waitUntil: 'domcontentloaded'})
-    await page.waitForTimeout(4 * 1000)
-
-    await completeCaptcha(page)
-
-    while (!(await page.$('#didomi-notice-disagree-button'))) {
-        await page.waitForTimeout(2000)
+    /* CAPTCHA DETECTED ZONE */
+    if (isThereCaptcha(page)) {
+        await console.log('CAPTCHA DETECTED')
 
         const elementHandle = await page.$('iframe')
+        const frame = await elementHandle.contentFrame()
+
+        await clickVerifyButton(frame, cursor, false)
+        await captcha(page, frame, cursor)
+        await page.waitForTimeout(4000)
+
+        while (await isCaptchaFailed(page)) {
+            console.log("IN isCaptchaFailed WHILE")
+            await page.waitForTimeout(
+                Math.floor(Math.random() * (2100 - 1000 + 1) + 1000),
+            )
+            await clickVerifyButton(frame, cursor, true)
+            await captcha(page, frame, cursor)
+        }
+        console.log("AFTER isCaptchaFailed WHILE")
+    } else {
+        console.log("NO CAPTCHA DETECTED")
+    }
+}
+
+async function isThereCaptcha(page) {
+    const elementHandle = await page.$('iframe')
+
+    if (elementHandle !== null) {
         const frame = await elementHandle.contentFrame()
         const cptchEn = await frame.$('[aria-label="Click to verify"]')
         const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]')
 
-        if (await frame && (await cptchEn || await cptchFr)) {
-            await completeCaptcha(page)
-            break;
-        }
-
-        await page.setUserAgent(randomUseragent.getRandom())
-        await page.reload({waitUntil: ["networkidle0", "domcontentloaded"]})
+        return !!(await cptchEn || await cptchFr);
+    } else {
+        console.log("elementHandle null in 'isThereCaptcha' method")
     }
-
-    await completeCaptcha(page)
-
-    await page.waitForSelector('#didomi-notice-disagree-button', {timeout: 4000})
-    await cursor.click('#didomi-notice-disagree-button')
-
-    //await completeCaptcha(page)
-
-    await page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 4000})
-    await cursor.click('button[data-qa-id="profilarea-login"]')
-
-    await page.waitForTimeout(3 * 1000)
-    await completeCaptcha(page)
-
-    await completeForm(page, username, password)
-
-    //await completeCaptcha(page)
-
-    return Promise.all([token, accountId])
-        .then((values) => {
-            console.log('Token + accountId promises OK')
-            browser.close()
-            return {token: values[0], accountId: values[1]}
-        })
-        .catch((reason) => {
-            console.log('AUTH PROMISES ERROR: ', reason)
-            browser.close()
-            return 404
-        })
 }
 
-async function completeCaptcha(page) {
-    console.log("inCompleteCaptcha")
-    const elementHandle = await page.$('iframe')
+async function captcha(page, frame, cursor) {
+    const images = await getCaptchaImages(frame)
+    console.log('getCaptchaImages ok')
+    const diffImage = await getDiffImage(images)
+    const center = await getPuzzlePieceSlotCenterPosition(diffImage)
+    console.log('slidePuzzlePiece variables passed: ', !page, !frame, !center, !cursor)
 
-    /* CAPTCHA DETECTED ZONE */
-    if (elementHandle !== null) {
-        const frame = await elementHandle.contentFrame()
-
-        if (frame) {
-            const cptchEn = await frame.$('[aria-label="Click to verify"]')
-            const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]')
-
-            if (await cptchEn || await cptchFr) {
-                // Mouve mouse
-                await cursor.moveTo({
-                    x: Math.floor(Math.random() * (750 - 15 + 1) + 15),
-                    y: Math.floor(Math.random() * (800 - 25 + 1) + 25)
-                })
-
-                /* CAPTCHA DETECTED ZONE */
-                if ((await cptchFr) !== null || (await cptchEn) !== null) {
-                    await console.log('CAPTCHA DETECTED')
-                    await clickVerifyButton(frame, false)
-                    await captcha(page, frame)
-                    await page.waitForTimeout(4000)
-
-                    while (await isCaptchaFailed(page)) {
-                        console.log("IN WHILE")
-                        await page.waitForTimeout(
-                            Math.floor(Math.random() * (2100 - 1000 + 1) + 1000),
-                        )
-                        await clickVerifyButton(frame, true)
-                        await captcha(page, frame)
-                    }
-                    console.log("AFTER WHILE")
-                }
-            }
-        }
-    }
+    await slidePuzzlePiece(page, frame, center, cursor)
 }
 
 function isCaptchaFailed(page) {
@@ -171,40 +80,14 @@ function isCaptchaFailed(page) {
         })
 }
 
-async function completeForm(page, username, password) {
-    console.log("inCompleteForm")
-    let emailInput = await page.waitForSelector('input[type="email"]')
-    await cursor.click('input[type="email"]')
-    await emailInput.type(username, {delay: Math.floor(Math.random() * (250 - 100 + 1) + 100)})
-
-    let passwordInput = await page.waitForSelector('input[type="password"]')
-    await cursor.click('input[type="password"]')
-    await page.waitForTimeout(Math.floor(Math.random() * (250 - 100 + 1) + 100))
-    await passwordInput.type(password, {delay: Math.floor(Math.random() * (250 - 100 + 1) + 100)})
-
-    const submitButton = await page.waitForSelector('[type=submit]')
-    await cursor.move(submitButton)
-    console.log("Submit form click")
-    await cursor.click(submitButton)
-}
-
-async function captcha(page, frame) {
-    const images = await getCaptchaImages(frame)
-    console.log('getCaptchaImages ok')
-    const diffImage = await getDiffImage(images)
-    const center = await getPuzzlePieceSlotCenterPosition(diffImage)
-
-    await slidePuzzlePiece(page, frame, center)
-}
-
-async function clickVerifyButton(frame, fail) {
+async function clickVerifyButton(frame, cursor, fail) {
     console.log('clickVerifyButton')
 
     if (fail) {
         const geeTestResetTipContent = await frame.waitForSelector('.geetest_reset_tip_content')
         await cursor.click(geeTestResetTipContent)
     } else {
-        const clickToverify = await frame.waitForSelector('[aria-label="Click to verify"]')
+        const clickToverify = await frame.waitForSelector('[aria-label="Click to verify"]') ?? await frame.waitForSelector('[aria-label="Cliquer pour vérifier"]')
         console.log("'Click to verify' selector waited")
         await cursor.move(clickToverify)
         await cursor.click(clickToverify)
@@ -315,7 +198,7 @@ async function getPuzzlePieceSlotCenterPosition(diffImage) {
     }
 }
 
-async function slidePuzzlePiece(page, frame, center) {
+async function slidePuzzlePiece(page, frame, center, cursor) {
     console.log("slidePuzzlePiece")
 
     const sliderHandle = await frame.$('.geetest_slider_button')
@@ -378,6 +261,5 @@ async function findMyPuzzlePiecePosition(page, frame) {
 }
 
 module.exports = {
-    getToken: main,
-    completeCaptcha, completeCaptcha
+    resolveCaptcha, resolveCaptcha
 }

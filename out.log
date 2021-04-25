@@ -1,0 +1,27 @@
+LBP API listening at http://localhost:3000
+inCompleteCaptcha
+inCompleteCaptcha
+CAPTCHA DETECTED
+clickVerifyButton
+'Click to verify' selector waited
+getCaptchaImages
+geeTest_canvas_img existance:  false
+buffers length:  3
+getCaptchaImages ok
+getDiffImage
+getPuzzlePieceSlotCenterPosition
+slidePuzzlePiece
+getCaptchaImages
+geeTest_canvas_img existance:  false
+buffers length:  3
+AFTER WHILE
+inCompleteCaptcha
+NO CAPTCHA FAIL DETECTED
+inCompleteCaptcha
+inCompleteForm
+Submit form click
+Error: Protocol error (Network.getResponseBody): No resource with given identifier found
+LBP API listening at http://localhost:3000
+inCompleteCaptcha
+TypeError: Cannot read property 'contentFrame' of null
+LBP API listening at http://localhost:3000

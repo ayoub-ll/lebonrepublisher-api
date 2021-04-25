@@ -1,0 +1,24 @@
+(node:4420) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Error: Protocol error (Network.getResponseBody): No resource with given identifier found
+/Users/ayoub/Workspace/business/syneed-web/leboncoin-republisher-2/api/node_modules/opencv-wasm/opencv.js:94
+                            throw ex
+                            ^
+
+RuntimeError: abort(Error: Protocol error (Network.getResponseBody): No resource with given identifier found). Build with -s ASSERTIONS=1 for more info.
+    at process.abort (/Users/ayoub/Workspace/business/syneed-web/leboncoin-republisher-2/api/node_modules/opencv-wasm/opencv.js:775:27)
+    at process.emit (node:events:376:20)
+    at emit (node:internal/process/promises:202:22)
+    at processPromiseRejections (node:internal/process/promises:223:25)
+    at processTicksAndRejections (node:internal/process/task_queues:94:32)
+TypeError: Cannot read property 'contentFrame' of null
+/Users/ayoub/Workspace/business/syneed-web/leboncoin-republisher-2/api/node_modules/opencv-wasm/opencv.js:94
+                            throw ex
+                            ^
+
+RuntimeError: abort(TypeError: Cannot read property 'contentFrame' of null). Build with -s ASSERTIONS=1 for more info.
+    at process.abort (/Users/ayoub/Workspace/business/syneed-web/leboncoin-republisher-2/api/node_modules/opencv-wasm/opencv.js:775:27)
+    at process.emit (node:events:376:20)
+    at emit (node:internal/process/promises:202:22)
+    at processPromiseRejections (node:internal/process/promises:223:25)
+    at processTicksAndRejections (node:internal/process/task_queues:94:32)
