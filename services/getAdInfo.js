@@ -22,24 +22,7 @@ async function main(adUrl) {
     await page.goto(adUrl, {waitUntil: 'domcontentloaded'})
     await page.waitForTimeout(3 * 1000)
 
-    while (!(await page.$('#didomi-notice-disagree-button'))) {
-        await page.waitForTimeout(2000)
-
-        const elementHandle = await page.$('iframe')
-        const frame = await elementHandle.contentFrame()
-        const cptchEn = await frame.$('[aria-label="Click to verify"]')
-        const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]')
-
-        if (await frame && (await cptchEn || await cptchFr)) {
-            await captcha.resolveCaptcha(page, cursor)
-            break;
-        }
-
-        await page.setUserAgent(randomUseragent.getRandom(function (ua) {
-            return parseFloat(ua.browserVersion) >= 20;
-        }))
-        await page.reload({waitUntil: ["networkidle0", "domcontentloaded"]})
-    }
+    await captcha.resolveCaptcha(page, cursor)
 
     console.log("after getAdInfo while")
 

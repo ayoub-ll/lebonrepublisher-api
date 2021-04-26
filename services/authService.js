@@ -1,7 +1,6 @@
 const ghostCursor = require("ghost-cursor")
 const puppeteer = require('puppeteer-extra')
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
-const randomUseragent = require('random-useragent')
 const captcha = require('../utils/captcha')
 puppeteer.use(StealthPlugin())
 
@@ -62,26 +61,7 @@ async function main(username, password) {
     await page.goto(process.env.lbc_login_url, {waitUntil: 'domcontentloaded'})
     await page.waitForTimeout(4 * 1000)
 
-    //await captcha.resolveCaptcha(page, cursor)
-
-    while (!(await page.$('#didomi-notice-disagree-button'))) {
-        await page.waitForTimeout(2000)
-
-        const elementHandle = await page.$('iframe')
-        const frame = await elementHandle.contentFrame()
-        const cptchEn = await frame.$('[aria-label="Click to verify"]')
-        const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]')
-
-        if (await frame && (await cptchEn || await cptchFr)) {
-            await captcha.resolveCaptcha(page, cursor)
-            break;
-        }
-
-        await page.setUserAgent(randomUseragent.getRandom(function (ua) {
-            return parseFloat(ua.browserVersion) >= 20;
-        }))
-        await page.reload({waitUntil: ["networkidle0", "domcontentloaded"]})
-    }
+    await captcha.resolveCaptcha(page, cursor)
 
     await page.waitForSelector('#didomi-notice-disagree-button', {timeout: 4000})
     await cursor.click('#didomi-notice-disagree-button')
@@ -90,7 +70,6 @@ async function main(username, password) {
     await cursor.click('button[data-qa-id="profilarea-login"]')
 
     await page.waitForTimeout(3 * 1000)
-    await captcha.resolveCaptcha(page, cursor)
 
     await completeForm(page, username, password)
 

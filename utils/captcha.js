@@ -1,39 +1,64 @@
 const Jimp = require('jimp')
 const pixelmatch = require('pixelmatch')
 const {cv} = require('opencv-wasm')
+const randomUseragent = require('random-useragent')
 
 async function resolveCaptcha(page, cursor) {
     console.log("inResolveCatpcha")
-    // Mouve mouse
-    await cursor.moveTo({
-        x: Math.floor(Math.random() * (750 - 15 + 1) + 15),
-        y: Math.floor(Math.random() * (800 - 25 + 1) + 25)
-    })
-    console.log("after mouse move")
 
-    /* CAPTCHA DETECTED ZONE */
-    if (await isThereCaptcha(await page)) {
-        await console.log('CAPTCHA DETECTED')
+    while (!(await page.$('#didomi-notice-disagree-button'))) {
+        await page.waitForTimeout(2000)
 
         const elementHandle = await page.$('iframe')
         const frame = await elementHandle.contentFrame()
+        const cptchEn = await frame.$('[aria-label="Click to verify"]')
+        const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]')
 
-        await clickVerifyButton(frame, cursor, false)
-        await captcha(page, frame, cursor)
-        await page.waitForTimeout(4000)
+        if (await frame && (await cptchEn || await cptchFr)) {
 
-        while (await isCaptchaFailed(page)) {
-            console.log("IN isCaptchaFailed WHILE")
-            await page.waitForTimeout(
-                Math.floor(Math.random() * (2100 - 1000 + 1) + 1000),
-            )
-            await clickVerifyButton(frame, cursor, true)
-            await captcha(page, frame, cursor)
+            // Mouve mouse
+            await cursor.moveTo({
+                x: Math.floor(Math.random() * (750 - 15 + 1) + 15),
+                y: Math.floor(Math.random() * (800 - 25 + 1) + 25)
+            })
+            console.log("after mouse move")
+
+            /* CAPTCHA DETECTED ZONE */
+            if (await isThereCaptcha(await page)) {
+                await console.log('CAPTCHA DETECTED')
+
+                const elementHandle = await page.$('iframe')
+                const frame = await elementHandle.contentFrame()
+
+                await clickVerifyButton(frame, cursor, false)
+                await captcha(page, frame, cursor)
+                await page.waitForTimeout(4000)
+
+                while (await isCaptchaFailed(page)) {
+                    console.log("IN isCaptchaFailed WHILE")
+                    await page.waitForTimeout(
+                        Math.floor(Math.random() * (2100 - 1000 + 1) + 1000),
+                    )
+                    await clickVerifyButton(frame, cursor, true)
+                    await captcha(page, frame, cursor)
+                }
+                console.log("AFTER isCaptchaFailed WHILE")
+            } else {
+                console.log("NO CAPTCHA DETECTED")
+            }
+
+            break;
         }
-        console.log("AFTER isCaptchaFailed WHILE")
-    } else {
-        console.log("NO CAPTCHA DETECTED")
+
+        await page.setUserAgent(randomUseragent.getRandom(function (ua) {
+            return parseFloat(ua.browserVersion) >= 20;
+        }))
+        await page.reload({waitUntil: ["networkidle0", "domcontentloaded"]})
     }
+
+
+
+
 }
 
 async function isThereCaptcha(page) {
