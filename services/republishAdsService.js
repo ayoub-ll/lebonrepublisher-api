@@ -17,37 +17,37 @@ function republishAds(token, ads) {
             .post('https://api.leboncoin.fr/api/adsubmit/v1/classifieds', {
                     images: [
                         {
-                            name: ad.images.name,
-                            url: ad.images.name
+                            name: ad.images.name, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                            url: ad.images.name // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
                         }
                     ],
                     attributes: {},
-                    email: ad.email,
-                    phone: ad.phone,
-                    category_id: ad.category_id,
-                    ad_type: ad.ad_type,
+                    email: ad.email, // api lbc via https://api.leboncoin.fr/api/accounts/v1/accounts/me/personaldata
+                    phone: ad.phone, // api lbc via https://api.leboncoin.fr/api/accounts/v1/accounts/me/personaldata (à caler par rapport au bool has_phone)
+                    category_id: ad.category_id, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                    ad_type: ad.ad_type, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
                     location: {
-                        address: ad.location.address,
-                        district: ad.location.district,
-                        city: ad.location.city,
-                        label: ad.location.label,
-                        lat: ad.location.lat,
-                        lng: ad.location.lng,
-                        zipcode: ad.location.zipcode,
-                        geo_source: ad.location.geo_source,
-                        geo_provider: ad.location.geo_provider,
-                        region: ad.location.region,
-                        region_label: ad.location.region_label,
-                        department: ad.location.department,
-                        dpt_label: ad.location.dpt_label,
-                        country: ad.location.country
+                        address: ad.location.address, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                        district: ad.location.district, // absent partout mais à priori ""
+                        city: ad.location.city, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                        label: ad.location.label, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                        lat: ad.location.lat, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                        lng: ad.location.lng, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                        zipcode: ad.location.zipcode, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                        geo_source: ad.location.geo_source, // à priori "city"
+                        geo_provider: ad.location.geo_provider, // à priori "here"
+                        region: ad.location.region, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                        region_label: ad.location.region_label, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                        department: ad.location.department, // api lbc api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                        dpt_label: ad.location.dpt_label, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                        country: ad.location.country // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
                     },
-                    pricing_id: ad.pricing_id,
-                    subject: ad.subject,
-                    body: ad.body,
-                    price: ad.price,
-                    phone_hidden: ad.phone_hidden,
-                    no_salesmen: true
+                    pricing_id: ad.pricing_id, // à priori tout le temps "b1ba354c1fea2f946b70f63422494ea2" (récupéré api LBC: https://api.leboncoin.fr/api/options/v1/pricing/classifieds/deposit/description à la création d'une annonce, au niveau categorie)
+                    subject: ad.subject, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                    body: ad.body, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                    price: ad.price, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                    phone_hidden: ad.phone_hidden, // (has_phone) api lbc https://api.leboncoin.fr/api/dashboard/v1/search
+                    no_salesmen: true // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
                 },
                 {
                     headers: {
