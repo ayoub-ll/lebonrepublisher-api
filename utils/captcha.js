@@ -12,7 +12,7 @@ async function resolveCaptcha(page, cursor) {
     console.log("after mouse move")
 
     /* CAPTCHA DETECTED ZONE */
-    if (isThereCaptcha(page)) {
+    if (await isThereCaptcha(await page)) {
         await console.log('CAPTCHA DETECTED')
 
         const elementHandle = await page.$('iframe')
