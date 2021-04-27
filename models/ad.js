@@ -10,13 +10,4 @@ class Ad extends Model {
             }
         };
     }
-
-    relationships() {
-        return {
-            'Customer': {
-                type: 'hasMany',
-                foreignKey: 'groupId'
-            }
-        };
-    }
 }

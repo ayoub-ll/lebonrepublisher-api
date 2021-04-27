@@ -1,6 +1,5 @@
-const auth = require('./authService')
 const axios = require('axios')
-const randomUseragent = require('random-useragent');
+const randomUseragent = require('random-useragent')
 
 function getAds(token, accountId) {
     return new Promise((resolve) =>

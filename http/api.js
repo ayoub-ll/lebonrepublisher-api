@@ -2,15 +2,15 @@ const dotenv = require('dotenv').config()
 const express = require('express')
 const auth = require('../services/authService')
 const getAdsService = require('../services/getAdsService')
-const getAdInfoService = require('../services/getAdInfo')
-const apikeyMiddleware = require('./middlewares/apikeyMiddleware')
+const republishAdService = require('../services/republishAdsService')
+const mainMiddlewares = require('./middlewares/mainMiddlewares')
 const app = express()
 const port = 3000
 
 app.use(express.json())
 
 // auth middleware: check auth api-key
-app.use(apikeyMiddleware.apiKeyMiddleware)
+app.use(mainMiddlewares.apiKeyMiddleware)
 
 /**
  * POST /auth
@@ -28,7 +28,7 @@ app.post('/auth', async (req, res) => {
 
     await auth.getToken(email, password).then((result) => {
         if (result == 404) {
-            console.log('Account not found. Token promise timeout 30sec')
+            console.log('Account not found. Token promise timeout')
             res.status(404).json({error: 'Account not found'})
             res.send()
         } else {
@@ -60,17 +60,12 @@ app.post('/auth', async (req, res) => {
  * - accountId
  * - token
  */
-app.post('/getAds', async (req, res) => {
+app.post('/getAds', mainMiddlewares.tokenMiddleware, async (req, res) => {
     let accountId = await req.body.accountId
     let token = await req.body.token
 
     if (!accountId) {
         res.status(400).json({error: 'accountId not found'})
-        res.send()
-    }
-
-    if (!token) {
-        res.status(401).json({error: 'token not found'})
         res.send()
     }
 
@@ -80,8 +75,8 @@ app.post('/getAds', async (req, res) => {
             res.send(result)
         })
         .catch((error) => {
-          res.status(500)
-          res.send()
+            res.status(500)
+            res.send()
         })
 })
 
@@ -94,11 +89,23 @@ app.post('/getAds', async (req, res) => {
  * - ads (array)
  * - token
  */
-app.post('/republishAds', async (req, res) => {
-    getAdInfoService.getAdInfo('https://www.leboncoin.fr/image_son/1971058285.htm').then((result) => {
-        res.status(200)
-        res.send(result)
-    })
+app.post('/republishAds', mainMiddlewares.tokenMiddleware, async (req, res) => {
+    let adsIds = await req.body.adsIds
+
+    if (!adsIds) {
+        res.status(400).json({error: 'adsIds not found'})
+        res.send()
+    }
+
+    await republishAdService.republishAds(req.body.token, adsIds)
+        .then((result) => {
+            res.status(200)
+            res.send(result)
+        })
+        .catch((error) => {
+            res.status(500)
+            res.send(error)
+        })
 })
 
 app.listen(port, () => {
