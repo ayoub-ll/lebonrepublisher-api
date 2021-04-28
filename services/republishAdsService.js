@@ -3,26 +3,37 @@ const randomUseragent = require('random-useragent')
 
 function main(token, adsIds, cookie) {
     return new Promise((resolve) => {
-        getPersonalData(token, cookie).then((response) => {
-            let personalData = {
-                email: response.data.personalData.email,
-                phone: response.data.personalData.phones.main.number
-            }
+        getPersonalData(token, cookie)
+            .then((response) => {
+                let personalData = {
+                    email: response.data.personalData.email,
+                    phone: response.data.personalData.phones.main.number
+                }
 
-            getAllAds(token, cookie).then((response) => {
-                const adsFiltered = filterAdsByIds(response.data.ads, adsIds)
-                const adsReady = constructAd(adsFiltered, personalData)
+                getAllAds(token, cookie)
+                    .then((response) => {
+                        const adsFiltered = filterAdsByIds(response.data.ads, adsIds)
+                        const adsReady = constructAd(adsFiltered, personalData)
 
-                deleteAds(token, cookie, adsIds)
+                        deleteAds(token, cookie, adsIds)
 
-                adsReady.forEach((ad) => {
-                    republishAds(token, cookie, ad).then(() => {
-                        console.log("republish OK")
+                        adsReady.forEach((ad) => {
+                            republishAds(token, cookie, ad)
+                                .then(() => {
+                                    console.log("republish OK")
+                                })
+                                .catch(() => {
+                                    throw 500
+                                })
+                        })
                     })
-                })
+                    .catch(() => {
+                        throw 500
+                    })
             })
-        })
-
+            .catch(() => {
+                throw 500
+            })
     })
 }
 
