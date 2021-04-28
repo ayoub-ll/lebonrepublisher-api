@@ -93,13 +93,19 @@ app.post('/getAds', mainMiddlewares.tokenMiddleware, async (req, res) => {
  */
 app.post('/republishAds', mainMiddlewares.tokenMiddleware, async (req, res) => {
     let adsIds = await req.body.adsIds
+    let cookie = await req.body.cookie
 
     if (!adsIds) {
         res.status(400).json({error: 'adsIds not found'})
         res.send()
     }
 
-    await republishAdService.republishAds(req.body.token, adsIds)
+    if (!cookie) {
+        res.status(400).json({error: 'cookie not found'})
+        res.send()
+    }
+
+    await republishAdService.republishAds(req.body.token, adsIds, cookie)
         .then((result) => {
             res.status(200)
             res.send(result)
