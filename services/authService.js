@@ -2,11 +2,8 @@ const ghostCursor = require("ghost-cursor")
 const puppeteer = require('puppeteer-extra')
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 const captcha = require('../utils/captcha')
+const randomUseragent = require('random-useragent')
 puppeteer.use(StealthPlugin())
-
-const Jimp = require('jimp')
-const pixelmatch = require('pixelmatch')
-const {cv} = require('opencv-wasm')
 
 const timeout = (prom, time) =>
     Promise.race([prom, new Promise((_r, rej) => setTimeout(rej, time))])
@@ -24,17 +21,25 @@ async function main(username, password) {
     cursor = await ghostCursor.createCursor(page)
     await ghostCursor.installMouseHelper(page)
     await page.setRequestInterception(true)
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
+    await page.setUserAgent(randomUseragent.getRandom(function (ua) {
+        return parseFloat(ua.browserVersion) >= 20;
+    }));
+
+
+    let cookie = ''
 
     const token = timeout(
         new Promise((resolve) =>
-            page.on('request', (request) => {
-                let auth = request.headers()['authorization']
+            page.on('request', async (request) => {
+                let auth = await request.headers()['authorization']
                 if (
-                    process.env.lbc_token_endpoint_regex == request.url() &&
+                    process.env.lbc_token_endpoint_regex == await request.url() &&
                     auth != null
                 ) {
-                    resolve(auth)
+                    cookie = (await page.cookies()).map((cookie) => { return `${cookie.name}=${cookie.value}`; }).join('; ')
+                    console.log("cookieeeee: ", cookie)
+
+                    await resolve(auth)
                 }
                 request.continue()
             }),
@@ -73,11 +78,11 @@ async function main(username, password) {
 
     await completeForm(page, username, password)
 
-    return Promise.all([token, accountId])
+    return Promise.all([token, cookie, accountId])
         .then((values) => {
             console.log('Token + accountId promises OK')
             browser.close()
-            return {token: values[0], accountId: values[1]}
+            return {token: values[0], cookie: cookie, accountId: values[1]}
         })
         .catch((reason) => {
             console.log('AUTH PROMISES ERROR: ', reason)

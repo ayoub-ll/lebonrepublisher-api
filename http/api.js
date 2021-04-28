@@ -33,9 +33,11 @@ app.post('/auth', async (req, res) => {
             res.send()
         } else {
             const token = result.token
+            const cookie = result.cookie
             const accountId = result.accountId
 
             console.log('token: ', token)
+            console.log('cookie: ', cookie)
             console.log('accountId: ', accountId)
 
             if (!token) {
@@ -43,7 +45,7 @@ app.post('/auth', async (req, res) => {
                 res.send()
             } else {
                 res.status(200)
-                res.send({token, accountId})
+                res.send({token, cookie, accountId})
             }
         }
     })
