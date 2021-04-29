@@ -17,16 +17,16 @@ app.use(mainMiddlewares.apiKeyMiddleware)
  *
  * get bearer token LBC from LBC email & password
  */
-app.post('/auth', async (req, res) => {
-    let email = await req.body.email
-    let password = await req.body.password
+app.post('/auth',  (req, res) => {
+    let email = req.body.email
+    let password = req.body.password
 
     if (!email || !password) {
         res.status(401).json({error: 'Email or password not found in request'})
         res.send()
     }
 
-    await auth.getToken(email, password).then((result) => {
+    auth.getToken(email, password).then((result) => {
         if (result == 404) {
             console.log('Account not found. Token promise timeout')
             res.status(404).json({error: 'Account not found'})

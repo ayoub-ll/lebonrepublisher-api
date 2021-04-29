@@ -13,7 +13,7 @@ var cursor = null
 async function main(username, password) {
     const browser = await puppeteer.launch({
         args: ['--disable-features=site-per-process'],
-        headless: false,
+        headless: true,
         defaultViewport: {width: 1100, height: 768},
     })
 
@@ -37,8 +37,6 @@ async function main(username, password) {
                     auth != null
                 ) {
                     cookie = (await page.cookies()).map((cookie) => { return `${cookie.name}=${cookie.value}`; }).join('; ')
-                    console.log("cookieeeee: ", cookie)
-
                     await resolve(auth)
                 }
                 request.continue()

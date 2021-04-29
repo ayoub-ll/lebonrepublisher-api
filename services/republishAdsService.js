@@ -20,6 +20,7 @@ function main(token, adsIds, cookie) {
                         adsReady.forEach((ad) => {
                             republishAds(token, cookie, ad)
                                 .then(() => {
+                                    resolve()
                                     console.log("republish OK")
                                 })
                                 .catch(() => {
