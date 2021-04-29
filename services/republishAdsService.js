@@ -57,7 +57,7 @@ function filterAdsByIds(allAds, adsIds) {
 }
 
 /**
- * Re-construct/mapping Ad to be able to republish endpoint
+ * Re-construct/mapping Ad to be able to republish endpoint from ads (/getAds)
  */
 function constructAd(ads, personalData) {
     const result = []
@@ -76,7 +76,7 @@ function constructAd(ads, personalData) {
             images: imagesArray,
             attributes: {},
             email: personalData.email, // api lbc via https://api.leboncoin.fr/api/accounts/v1/accounts/me/personaldata
-            phone: personalData.phone, // TODO: (à caler par rapport au bool has_phone)
+            phone: personalData.phone,
             category_id: ad.category_id,
             ad_type: ad.ad_type, // api lbc https://api.leboncoin.fr/api/dashboard/v1/search
             location: {
