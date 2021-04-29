@@ -36,9 +36,11 @@ app.post('/auth',  (req, res) => {
             const cookie = result.cookie
             const accountId = result.accountId
 
+            /*
             console.log('token: ', token)
             console.log('cookie: ', cookie)
             console.log('accountId: ', accountId)
+            */
 
             if (!token) {
                 res.status(500).json({error: 'Token null'})

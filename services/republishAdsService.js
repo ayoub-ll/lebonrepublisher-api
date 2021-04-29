@@ -134,7 +134,7 @@ function getPersonalData(token, cookie) {
                 resolve(response)
             })
             .catch(function (error) {
-                console.log("getPersonalData ERROR: ", error)
+                console.log("getPersonalData ERROR: ", error.response.status)
                 return null
             })
     })
@@ -171,7 +171,7 @@ function republishAds(token, cookie, ad) {
                 console.log("re-Publish Ad response: ", response)
             })
             .catch(function (error) {
-                console.log("re-Publish ad ERROR: ", error)
+                console.log("re-Publish ad ERROR: ", error.response.status)
             })
     )
 }
@@ -218,7 +218,7 @@ function getAllAds(token, cookie) {
                 console.log("GetAllAds OK")
             })
             .catch((error) => {
-                console.log("error fetch ads from LBC endpoint: v1/search: ", error)
+                console.log("error fetch ads from LBC endpoint: v1/search: ", error.response.status)
             })
     })
 }
@@ -249,10 +249,10 @@ function deleteAds(token, cookie, adsIds) {
         }
     })
         .then(function (response) {
-            console.log("deleteAds OK: ", response)
+            console.log("deleteAds OK: ")
         })
         .catch(function (error) {
-            console.log("deleteAds ERROR: ", error)
+            console.log("deleteAds ERROR: ", error.response.status)
         })
 }
 
