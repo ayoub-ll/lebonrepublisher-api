@@ -83,7 +83,7 @@ async function main(username, password) {
             return {token: values[0], cookie: cookie, accountId: values[1]}
         })
         .catch((reason) => {
-            console.log('AUTH PROMISES ERROR: ', reason)
+            console.log('AUTH PROMISES ERROR')
             browser.close()
             return 404
         })
