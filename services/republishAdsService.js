@@ -15,7 +15,9 @@ function main(token, adsIds, cookie) {
                         const adsFiltered = filterAdsByIds(response.data.ads, adsIds)
                         const adsReady = constructAd(adsFiltered, personalData)
 
-                        deleteAds(token, cookie, adsIds)
+                        setTimeout(function() {
+                            deleteAds(token, cookie, adsIds)
+                        }, (6 * 1000))
 
                         adsReady.forEach((ad) => {
                             republishAds(token, cookie, ad)
