@@ -12,12 +12,16 @@ app.use(express.json())
 // auth middleware: check auth api-key
 app.use(mainMiddlewares.apiKeyMiddleware)
 
+app.get('/ping', (req, res) => {
+    res.status(200).json({msg: 'pong'})
+})
+
 /**
  * POST /auth
  *
  * get bearer token LBC from LBC email & password
  */
-app.post('/auth',  (req, res) => {
+app.post('/auth', (req, res) => {
     let email = req.body.email
     let password = req.body.password
 
