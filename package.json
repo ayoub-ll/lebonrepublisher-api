@@ -22,6 +22,6 @@
     "start": "node http/api.js"
   },
   "engines": {
-    "node": "15"
+    "node": "15.5.1"
   }
 }
