@@ -5,7 +5,6 @@ const getAdsService = require('../services/getAdsService')
 const republishAdService = require('../services/republishAdsService')
 const mainMiddlewares = require('./middlewares/mainMiddlewares')
 const app = express()
-const port = 3000
 
 app.use(express.json())
 
@@ -122,6 +121,6 @@ app.post('/republishAds', mainMiddlewares.tokenMiddleware, async (req, res) => {
         })
 })
 
-app.listen(port, () => {
-    console.log(`LBP API listening at http://localhost:${port}`)
+app.listen(process.env.PORT || 3000, () => {
+    console.log(`LBP API listening at http://localhost:`, process.env.PORT)
 })

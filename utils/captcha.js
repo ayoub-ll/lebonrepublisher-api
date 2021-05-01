@@ -112,18 +112,10 @@ async function clickVerifyButton(frame, cursor, fail) {
         const geeTestResetTipContent = await frame.waitForSelector('.geetest_reset_tip_content')
         await cursor.click(geeTestResetTipContent)
     } else {
-        var clickToverify = await frame.waitForSelector('[aria-label="Click to verify"]')
-        var cliquerPourVerifier = await frame.waitForSelector('[aria-label="Cliquer pour vérifier"]')
-
-        if (await clickToverify) {
-            console.log("'Click to verify' selector waited")
-            await cursor.move(clickToverify)
-            await cursor.click(clickToverify)
-        } else if (await cliquerPourVerifier) {
-            console.log("'CliquerPourVerifier' selector waited")
-            await cursor.move(cliquerPourVerifier)
-            await cursor.click(cliquerPourVerifier)
-        }
+        const clickToverify = await frame.waitForSelector('[aria-label="Click to verify"]') ?? await frame.waitForSelector('[aria-label="Cliquer pour vérifier"]')
+        console.log("'Click to verify' selector waited")
+        await cursor.move(clickToverify)
+        await cursor.click(clickToverify)
     }
 
     await frame.waitForTimeout(1000)
