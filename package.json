@@ -17,5 +17,8 @@
     "puppeteer-extra": "^3.1.16-next.149",
     "puppeteer-extra-plugin-stealth": "^2.7",
     "random-useragent": "^0.5.0"
+  },
+  "scripts": {
+    "start": "node http/api.js"
   }
 }
