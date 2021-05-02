@@ -34,6 +34,7 @@ async function resolveCaptcha(page, cursor) {
                 await captcha(page, frame, cursor)
                 await page.waitForTimeout(4000)
 
+
                 while (await isCaptchaFailed(page)) {
                     console.log("IN isCaptchaFailed WHILE")
                     await page.waitForTimeout(
@@ -86,14 +87,14 @@ async function captcha(page, frame, cursor) {
 }
 
 function isCaptchaFailed(page) {
-    return page.waitForSelector('input[type="email"]', {timeout: 3500})
+    page.waitForTimeout(5000)
+    return page.waitForSelector('input[type="email"]', {timeout: 8000})
         .then(() => {
             console.log("NO CAPTCHA FAIL DETECTED")
             return false
-
         })
         .catch(() => {
-            page.waitForSelector('#didomi-notice-disagree-button', {timeout: 2000})
+            page.waitForSelector('#didomi-notice-disagree-button', {timeout: 12000})
                 .then(() => {
                     console.log("NO CAPTCHA FAIL DETECTED")
                     return false
@@ -207,6 +208,7 @@ async function getPuzzlePieceSlotCenterPosition(diffImage) {
     const cy = Math.floor(moment.m01 / moment.m00)
 
     // Just for fun, let's draw the contours and center on a new image.
+    /*
     cv.cvtColor(dst, dst, cv.COLOR_GRAY2BGR)
     const red = new cv.Scalar(255, 0, 0)
     cv.drawContours(dst, contours, 0, red)
@@ -216,7 +218,7 @@ async function getPuzzlePieceSlotCenterPosition(diffImage) {
         height: dst.rows,
         data: Buffer.from(dst.data),
     }).write('./contours.png')
-
+     */
     return {
         x: cx,
         y: cy,

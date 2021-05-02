@@ -36,7 +36,7 @@ async function main(username, password) {
                     process.env.lbc_token_endpoint_regex == await request.url() &&
                     auth != null
                 ) {
-                    cookie = (await page.cookies()).map((cookie) => { return `${cookie.name}=${cookie.value}`; }).join('; ')
+                    cookie = await (await page.cookies()).map((cookie) => { return `${cookie.name}=${cookie.value}`; }).join('; ')
                     await resolve(auth)
                 }
                 request.continue()
@@ -66,8 +66,16 @@ async function main(username, password) {
 
     await captcha.resolveCaptcha(page, cursor)
 
-    await page.waitForSelector('#didomi-notice-disagree-button', {timeout: 6000})
+    await page.waitForTimeout(6 * 1000)
+
+    await page.waitForSelector('#didomi-notice-disagree-button', {timeout: 7500})
+        .catch((error) => {
+            console.log("[ERROR]: #didomi-notice-disagree-button not found")
+            throw error
+        })
+
     await cursor.click('#didomi-notice-disagree-button')
+    await console.log("after didomi click")
 
     await page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 4000})
     await cursor.click('button[data-qa-id="profilarea-login"]')
@@ -81,7 +89,7 @@ async function main(username, password) {
     console.log("token: ", token)
     console.log("cookie: ", cookie)
     console.log("accountId: ", accountId)
-    
+
     return Promise.all([token, cookie, accountId])
         .then((values) => {
             console.log('Token + accountId promises OK')

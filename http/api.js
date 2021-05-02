@@ -51,9 +51,9 @@ app.post('/auth', (req, res) => {
         })
         .catch((error) => {
             console.log("getToken error: ", error)
+            res.status(500).json({error: 'serv error'})
+            res.send()
         })
-
-
 })
 
 /**
