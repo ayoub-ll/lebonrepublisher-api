@@ -33,16 +33,16 @@ async function main(username, password) {
             page.on('request', async (request) => {
                 let auth = await request.headers()['authorization']
                 if (
-                    process.env.lbc_token_endpoint_regex == await request.url() &&
-                    auth != null
+                    await process.env.lbc_token_endpoint_regex == await request.url() &&
+                    await auth != null
                 ) {
                     cookie = await (await page.cookies()).map((cookie) => { return `${cookie.name}=${cookie.value}`; }).join('; ')
                     await resolve(auth)
                 }
-                request.continue()
+                await request.continue()
             }),
         ),
-        55000, //
+        70000, //
     )
 
     const accountId = new Promise((resolve) =>
@@ -86,9 +86,9 @@ async function main(username, password) {
 
     await page.waitForTimeout(2 * 1000)
 
-    console.log("token: ", token)
-    console.log("cookie: ", cookie)
-    console.log("accountId: ", accountId)
+    await console.log("token: ", token)
+    await console.log("cookie: ", cookie)
+    await console.log("accountId: ", accountId)
 
     return Promise.all([token, cookie, accountId])
         .then((values) => {
@@ -115,9 +115,14 @@ async function completeForm(page, username, password) {
     await page.waitForTimeout(Math.floor(Math.random() * (250 - 100 + 1) + 100))
     await passwordInput.type(password, {delay: Math.floor(Math.random() * (250 - 100 + 1) + 100)})
 
-    const submitButton = await page.waitForSelector('[type=submit]')
+    const submitButton = await page.waitForSelector('[type="submit"]', {timeout: 2000})
+        .catch((error) => {
+            console.log("[ERROR]: [type=submit] not found")
+            throw error
+        })
+
     await cursor.move(submitButton)
-    console.log("Submit form click")
+    await console.log("Submit form click")
     await cursor.click(submitButton)
 }
 

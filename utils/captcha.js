@@ -128,6 +128,8 @@ async function getCaptchaImages(frame) {
 
     await frame.waitForSelector('.geetest_canvas_img canvas')
 
+    await frame.waitForTimeout(3000)
+
     const images = await frame.$$eval(
         '.geetest_canvas_img canvas',
         (canvases) => {
