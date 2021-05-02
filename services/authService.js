@@ -66,7 +66,7 @@ async function main(username, password) {
 
     await captcha.resolveCaptcha(page, cursor)
 
-    await page.waitForSelector('#didomi-notice-disagree-button', {timeout: 4000})
+    await page.waitForSelector('#didomi-notice-disagree-button', {timeout: 6000})
     await cursor.click('#didomi-notice-disagree-button')
 
     await page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 4000})
@@ -74,12 +74,14 @@ async function main(username, password) {
 
     await page.waitForTimeout(2 * 1000)
 
-    await cursor.click('button[data-qa-id="profilarea-login"]')
+    await completeForm(page, username, password)
 
     await page.waitForTimeout(2 * 1000)
 
-    await completeForm(page, username, password)
-
+    console.log("token: ", token)
+    console.log("cookie: ", cookie)
+    console.log("accountId: ", accountId)
+    
     return Promise.all([token, cookie, accountId])
         .then((values) => {
             console.log('Token + accountId promises OK')

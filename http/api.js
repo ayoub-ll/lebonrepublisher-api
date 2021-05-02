@@ -29,31 +29,29 @@ app.post('/auth', (req, res) => {
         res.send()
     }
 
-    auth.getToken(email, password).then((result) => {
-        if (result == 404) {
-            console.log('Account not found. Token promise timeout')
-            res.status(404).json({error: 'Account not found'})
-            res.send()
-        } else {
-            const token = result.token
-            const cookie = result.cookie
-            const accountId = result.accountId
-
-            /*
-            console.log('token: ', token)
-            console.log('cookie: ', cookie)
-            console.log('accountId: ', accountId)
-            */
-
-            if (!token) {
-                res.status(500).json({error: 'Token null'})
+    auth.getToken(email, password)
+        .then((result) => {
+            if (result == 404) {
+                console.log('Account not found. Token promise timeout')
+                res.status(404).json({error: 'Account not found'})
                 res.send()
             } else {
-                res.status(200)
-                res.send({token, cookie, accountId})
+                const token = result.token
+                const cookie = result.cookie
+                const accountId = result.accountId
+
+                if (!token) {
+                    res.status(500).json({error: 'Token null'})
+                    res.send()
+                } else {
+                    res.status(200)
+                    res.send({token, cookie, accountId})
+                }
             }
-        }
-    })
+        })
+        .catch((error) => {
+            console.log("getToken error: ", error)
+        })
 
 
 })
