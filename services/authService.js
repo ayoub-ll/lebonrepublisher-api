@@ -72,7 +72,11 @@ async function main(username, password) {
     await page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 4000})
     await cursor.click('button[data-qa-id="profilarea-login"]')
 
-    await page.waitForTimeout(3 * 1000)
+    await page.waitForTimeout(2 * 1000)
+
+    await cursor.click('button[data-qa-id="profilarea-login"]')
+
+    await page.waitForTimeout(2 * 1000)
 
     await completeForm(page, username, password)
 
