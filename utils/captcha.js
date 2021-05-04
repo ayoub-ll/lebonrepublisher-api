@@ -3,6 +3,24 @@ const pixelmatch = require('pixelmatch')
 const {cv} = require('opencv-wasm')
 const randomUseragent = require('random-useragent')
 
+function captchaNeedSlide(frame) {
+    return new Promise((resolve) => {
+        frame.waitForSelector('.geetest_fullpage_click', {timeout: 5000})
+            .then((result) => {
+                console.log(".geetest_fullpage_click DETECTED")
+                console.log("geeTestFullPageClick style: ", result.style)
+                console.log("geeTestFullPageClick style display: ", result.style.display)
+                resolve(result.style.display === 'none')
+                return result.style.display === 'none'
+            })
+            .catch(() => {
+                console.log(".geetest_fullpage_click NOT DETECTED")
+                resolve(false)
+                return false
+            })
+    })
+}
+
 async function resolveCaptcha(page, cursor) {
     console.log("inResolveCatpcha")
 
@@ -35,19 +53,22 @@ async function resolveCaptcha(page, cursor) {
                 await page.waitForTimeout(4000)
 
 
-                while (await isCaptchaFailed(page)) {
-                    console.log("IN isCaptchaFailed WHILE")
+                while (await isCaptchaFailed(await page)) {
+                    await console.log("IN isCaptchaFailed WHILE")
                     await page.waitForTimeout(
                         Math.floor(Math.random() * (2100 - 1000 + 1) + 1000),
                     )
-                    await clickVerifyButton(frame, cursor, true)
+                    if (await !captchaNeedSlide(frame)) {
+                        await clickVerifyButton(frame, cursor, true)
+                    }
+
                     await captcha(page, frame, cursor)
                 }
-                console.log("AFTER isCaptchaFailed WHILE")
-            } else {
-                console.log("NO CAPTCHA DETECTED")
-            }
 
+                await console.log("AFTER isCaptchaFailed WHILE")
+            } else {
+                await console.log("NO CAPTCHA DETECTED")
+            }
             break;
         }
 
@@ -58,52 +79,56 @@ async function resolveCaptcha(page, cursor) {
     }
 
 
-
-
 }
 
 async function isThereCaptcha(page) {
     const elementHandle = await page.$('iframe')
 
-    if (elementHandle !== null) {
+    if (await elementHandle !== null) {
         const frame = await elementHandle.contentFrame()
         const cptchEn = await frame.$('[aria-label="Click to verify"]')
         const cptchFr = await frame.$('[aria-label="Cliquer pour vérifier"]')
 
         return !!(await cptchEn || await cptchFr);
     } else {
-        console.log("elementHandle null in 'isThereCaptcha' method")
+        await console.log("elementHandle null in 'isThereCaptcha' method")
     }
 }
 
 async function captcha(page, frame, cursor) {
     const images = await getCaptchaImages(frame)
-    console.log('getCaptchaImages ok')
+    await console.log('getCaptchaImages ok')
     const diffImage = await getDiffImage(images)
     const center = await getPuzzlePieceSlotCenterPosition(diffImage)
-    console.log('slidePuzzlePiece variables passed: ', !page, !frame, !center, !cursor)
+    await console.log('slidePuzzlePiece variables passed: ', !page, !frame, !center, !cursor)
 
     await slidePuzzlePiece(page, frame, center, cursor)
 }
 
 function isCaptchaFailed(page) {
     page.waitForTimeout(5000)
-    return page.waitForSelector('input[type="email"]', {timeout: 8000})
-        .then(() => {
-            console.log("NO CAPTCHA FAIL DETECTED")
-            return false
-        })
-        .catch(() => {
-            page.waitForSelector('#didomi-notice-disagree-button', {timeout: 12000})
-                .then(() => {
-                    console.log("NO CAPTCHA FAIL DETECTED")
-                    return false
-                })
-                .catch(() => {
-                    console.log("CAPTCHA FAIL DETECTED")
-                    return true
-                })
-        })
+    return new Promise((resolve) => {
+        page.waitForSelector('input[type="email"]', {timeout: 8000})
+            .then(() => {
+                console.log("NO CAPTCHA FAIL DETECTED")
+                resolve(false)
+                return false
+            })
+            .catch(() => {
+                page.waitForSelector('#didomi-notice-disagree-button', {timeout: 12000})
+                    .then(() => {
+                        console.log("NO CAPTCHA FAIL DETECTED")
+                        resolve(false)
+                        return false
+                    })
+                    .catch(() => {
+                        console.log("CAPTCHA FAIL DETECTED")
+                        page.screenshot({path: `captchaFail.png`})
+                        resolve(true)
+                        return true
+                    })
+            })
+    })
 }
 
 async function clickVerifyButton(frame, cursor, fail) {
@@ -123,8 +148,8 @@ async function clickVerifyButton(frame, cursor, fail) {
 }
 
 async function getCaptchaImages(frame) {
-    console.log('getCaptchaImages')
-    console.log('geeTest_canvas_img existance: ', !frame.waitForSelector('.geetest_canvas_img canvas'))
+    await console.log('getCaptchaImages')
+    await console.log('geeTest_canvas_img existance: ', !frame.waitForSelector('.geetest_canvas_img canvas'))
 
     await frame.waitForSelector('.geetest_canvas_img canvas')
 
@@ -144,7 +169,7 @@ async function getCaptchaImages(frame) {
 
     // For each base64 string create a Javascript buffer.
     const buffers = images.map((img) => new Buffer(img, 'base64'))
-    console.log('buffers length: ', buffers.length)
+    await console.log('buffers length: ', buffers.length)
     // And read each buffer into a Jimp image.
     return {
         captcha: await Jimp.read(buffers[0]),
@@ -153,8 +178,8 @@ async function getCaptchaImages(frame) {
     }
 }
 
-async function getDiffImage(images) {
-    await console.log('getDiffImage')
+function getDiffImage(images) {
+    console.log('getDiffImage')
     const {width, height} = images.original.bitmap
 
     // Use the pixelmatch package to create an image diff

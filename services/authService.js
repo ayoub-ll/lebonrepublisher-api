@@ -65,8 +65,10 @@ async function main(username, password) {
     await page.waitForTimeout(4 * 1000)
 
     await captcha.resolveCaptcha(page, cursor)
-
+    await console.log("AuthService: after captcha resolve + page refresh")
     await page.waitForTimeout(6 * 1000)
+
+    //await page.screenshot({path: `screen.png`});
 
     await page.waitForSelector('#didomi-notice-disagree-button', {timeout: 7500})
         .catch((error) => {
@@ -90,7 +92,7 @@ async function main(username, password) {
     await console.log("cookie: ", cookie)
     await console.log("accountId: ", accountId)
 
-    return Promise.all([token, cookie, accountId])
+    return Promise.all([await token, await cookie, await accountId])
         .then((values) => {
             console.log('Token + accountId promises OK')
             browser.close()
