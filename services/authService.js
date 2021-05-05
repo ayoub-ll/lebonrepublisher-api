@@ -33,11 +33,11 @@ async function main(username, password) {
             page.on('request', async (request) => {
                 let auth = await request.headers()['authorization']
                 if (
-                    await process.env.lbc_token_endpoint_regex == await request.url() &&
+                    await process.env.lbc_token_endpoint_regex == request.url() &&
                     await auth != null
                 ) {
                     cookie = await (await page.cookies()).map((cookie) => { return `${cookie.name}=${cookie.value}`; }).join('; ')
-                    await resolve(auth)
+                    resolve(auth)
                 }
                 await request.continue()
             }),
@@ -46,7 +46,7 @@ async function main(username, password) {
     )
 
     const accountId = new Promise((resolve) =>
-        page.on('response', async (response) => {
+        page.on('response', (response) => {
             let request = response.request()
             let storeId = null
 
@@ -54,8 +54,8 @@ async function main(username, password) {
                 process.env.lbc_token_endpoint_regex == request.url() &&
                 request.method() == 'GET'
             ) {
-                let responseJson = await response.json()
-                storeId = await responseJson.storeId
+                let responseJson = response.json()
+                storeId = responseJson.storeId
                 resolve(storeId)
             }
         }),
@@ -68,7 +68,7 @@ async function main(username, password) {
     await console.log("AuthService: after captcha resolve + page refresh")
     await page.waitForTimeout(6 * 1000)
 
-    //await page.screenshot({path: `screen.png`});
+    //page.screenshot({path: `screen.png`});
 
     await page.waitForSelector('#didomi-notice-disagree-button', {timeout: 7500})
         .catch((error) => {
@@ -77,7 +77,7 @@ async function main(username, password) {
         })
 
     await cursor.click('#didomi-notice-disagree-button')
-    await console.log("after didomi click")
+    console.log("after didomi click")
 
     await page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 4000})
     await cursor.click('button[data-qa-id="profilarea-login"]')
@@ -92,7 +92,7 @@ async function main(username, password) {
     await console.log("cookie: ", cookie)
     await console.log("accountId: ", accountId)
 
-    return Promise.all([await token, await cookie, await accountId])
+    return Promise.all([token, cookie, accountId])
         .then((values) => {
             console.log('Token + accountId promises OK')
             browser.close()
@@ -107,7 +107,7 @@ async function main(username, password) {
 
 
 async function completeForm(page, username, password) {
-    console.log("inCompleteForm")
+    await console.log("inCompleteForm")
     let emailInput = await page.waitForSelector('input[type="email"]')
     await cursor.click('input[type="email"]')
     await emailInput.type(username, {delay: Math.floor(Math.random() * (250 - 100 + 1) + 100)})
