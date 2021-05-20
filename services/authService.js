@@ -13,7 +13,7 @@ var cursor = null
 async function main(username, password) {
     const browser = await puppeteer.launch({
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-features=site-per-process'],
-        headless: false,
+        headless: true,
         defaultViewport: {width: 1100, height: 768},
     })
 
@@ -79,7 +79,7 @@ async function main(username, password) {
     await cursor.click('#didomi-notice-disagree-button')
     console.log("after didomi click")
 
-    await page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 4000})
+    await page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 7500})
     await cursor.click('button[data-qa-id="profilarea-login"]')
 
     await page.waitForTimeout(2 * 1000)
