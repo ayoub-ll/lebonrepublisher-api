@@ -151,9 +151,11 @@ async function getCaptchaImages(frame) {
     await console.log('getCaptchaImages')
     await console.log('geeTest_canvas_img existance: ', !frame.waitForSelector('.geetest_canvas_img canvas'))
 
-    await frame.waitForSelector('.geetest_canvas_img canvas')
-
-    await frame.waitForTimeout(3000)
+    await frame.waitForSelector('.geetest_canvas_img canvas', {timeout: 5000})
+        .catch((e) => {
+            console.log(".geetest_canvas_img NOT DETECTED")
+            throw e
+        })
 
     const images = await frame.$$eval(
         '.geetest_canvas_img canvas',

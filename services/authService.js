@@ -13,7 +13,7 @@ var cursor = null
 async function main(username, password) {
     const browser = await puppeteer.launch({
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-features=site-per-process'],
-        headless: true,
+        headless: false,
         defaultViewport: {width: 1100, height: 768},
     })
 
@@ -88,6 +88,10 @@ async function main(username, password) {
 
     await page.waitForTimeout(2 * 1000)
 
+    await submitDoubleAuthWindow(page)
+
+    await page.waitForTimeout(2 * 1000)
+
     await console.log("token: ", token)
     await console.log("cookie: ", cookie)
     await console.log("accountId: ", accountId)
@@ -105,6 +109,17 @@ async function main(username, password) {
         })
 }
 
+async function submitDoubleAuthWindow(page) {
+    const plusTardButton = await page.$x("//a[contains(., 'Plus tard')]")
+
+    if (plusTardButton != null) {
+        //await console.log("plusTardButton not equals null: ", plusTardButton[0])
+        await cursor.click(plusTardButton[0])
+        await console.log("plusTardButton after click")
+    }
+    //await cursor.click(plusTardButton)
+    //await plusTardButton.click()
+}
 
 async function completeForm(page, username, password) {
     await console.log("inCompleteForm")
