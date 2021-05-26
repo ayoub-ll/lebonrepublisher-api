@@ -24,7 +24,15 @@ app.post('/auth', (req, res) => {
     let email = req.body.email
     let password = req.body.password
 
+    if (!req) {
+        console.error('[ERROR]: Req null in api.js')
+        res.status(500).json({error: 'Req null'})
+        res.send()
+        res.end()
+    }
+
     if (!email || !password) {
+        console.error('[ERROR]: Email or password not found in request')
         res.status(401).json({error: 'Email or password not found in request'})
         res.send()
     }

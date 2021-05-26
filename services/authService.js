@@ -33,7 +33,7 @@ async function main(username, password) {
             page.on('request', async (request) => {
                 let auth = await request.headers()['authorization']
                 if (
-                    await process.env.lbc_token_endpoint_regex == request.url() &&
+                    await process.env.lbc_token_endpoint_regex === request.url() &&
                     await auth != null
                 ) {
                     cookie = await (await page.cookies()).map((cookie) => { return `${cookie.name}=${cookie.value}`; }).join('; ')
@@ -51,8 +51,8 @@ async function main(username, password) {
             let storeId = null
 
             if (
-                process.env.lbc_token_endpoint_regex == request.url() &&
-                request.method() == 'GET'
+                process.env.lbc_token_endpoint_regex === request.url() &&
+                request.method() === 'GET'
             ) {
                 let responseJson = response.json()
                 storeId = responseJson.storeId
@@ -78,7 +78,7 @@ async function main(username, password) {
     await console.log("after didomi click")
 
     await page.waitForTimeout(2 * 1000)
-    
+
     await page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 10000})
         .catch((error) => {
             console.log("[ERROR]: button[data-qa-id=\"profilarea-login\"] exceded 10000")
@@ -96,10 +96,6 @@ async function main(username, password) {
     await submitDoubleAuthWindow(page)
 
     await page.waitForTimeout(2 * 1000)
-
-    await console.log("token: ", await token)
-    await console.log("cookie: ", await cookie)
-    await console.log("accountId: ", await accountId)
 
     return Promise.all([await token, await cookie, await accountId])
         .then((values) => {
