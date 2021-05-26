@@ -97,6 +97,10 @@ async function main(username, password) {
 
     await page.waitForTimeout(2 * 1000)
 
+    console.log("token: ", token)
+    console.log("cookie: ", cookie)
+    console.log("accountId: ", accountId)
+
     return Promise.all([await token, await cookie, await accountId])
         .then((values) => {
             console.log('Token + accountId promises OK')
@@ -115,7 +119,7 @@ async function submitDoubleAuthWindow(page) {
 
     if (await plusTardButton != null) {
         //await console.log("plusTardButton not equals null: ", plusTardButton[0])
-        await cursor.click(plusTardButton[0])
+        await cursor.click(await plusTardButton[0])
         await console.log("plusTardButton after click")
     }
 }
