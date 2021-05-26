@@ -25,7 +25,7 @@ async function resolveCaptcha(page, cursor) {
     console.log("inResolveCatpcha")
 
     while (!(await page.$('#didomi-notice-disagree-button'))) {
-        await page.waitForTimeout(2000)
+        await page.waitForTimeout(3500)
 
         const elementHandle = await page.$('iframe')
         const frame = await elementHandle.contentFrame()
@@ -96,7 +96,7 @@ async function isThereCaptcha(page) {
 }
 
 async function captcha(page, frame, cursor) {
-    const images = await getCaptchaImages(frame)
+    const images = await getCaptchaImages(await frame)
     await console.log('getCaptchaImages ok')
     const diffImage = await getDiffImage(images)
     const center = await getPuzzlePieceSlotCenterPosition(diffImage)
@@ -284,7 +284,7 @@ async function slidePuzzlePiece(page, frame, center, cursor) {
 async function findMyPuzzlePiecePosition(page, frame) {
     // Must call the getCaptchaImages again, because we have changed the
     // slider position (and therefore the image)
-    const images = await getCaptchaImages(frame)
+    const images = await getCaptchaImages(await frame)
     const srcPuzzleImage = images.puzzle
     const srcPuzzle = cv.matFromImageData(srcPuzzleImage.bitmap)
     const dstPuzzle = new cv.Mat()
