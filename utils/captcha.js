@@ -170,13 +170,13 @@ async function getCaptchaImages(frame) {
     )
 
     // For each base64 string create a Javascript buffer.
-    const buffers = images.map((img) => new Buffer(img, 'base64'))
-    await console.log('buffers length: ', buffers.length)
+    const buffers = await images.map((img) => new Buffer(img, 'base64'))
+    await console.log('buffers length: ', await buffers.length)
     // And read each buffer into a Jimp image.
     return {
-        captcha: await Jimp.read(buffers[0]),
-        puzzle: await Jimp.read(buffers[1]),
-        original: await Jimp.read(buffers[2]),
+        captcha: await Jimp.read(await buffers[0]),
+        puzzle: await Jimp.read(await buffers[1]),
+        original: await Jimp.read(await buffers[2]),
     }
 }
 

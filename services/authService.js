@@ -18,10 +18,10 @@ async function main(username, password) {
     })
 
     var page = await browser.newPage()
-    cursor = await ghostCursor.createCursor(page)
-    await ghostCursor.installMouseHelper(page)
+    cursor = await ghostCursor.createCursor(await page)
+    await ghostCursor.installMouseHelper(await page)
     await page.setRequestInterception(true)
-    await page.setUserAgent(randomUseragent.getRandom(function (ua) {
+    await page.setUserAgent(await randomUseragent.getRandom(function (ua) {
         return parseFloat(ua.browserVersion) >= 20;
     }));
 
@@ -64,11 +64,9 @@ async function main(username, password) {
     await page.goto(process.env.lbc_login_url, {waitUntil: 'domcontentloaded'})
     await page.waitForTimeout(4 * 1000)
 
-    await captcha.resolveCaptcha(page, cursor)
+    await captcha.resolveCaptcha(await page, await cursor)
     await console.log("AuthService: after captcha resolve + page refresh")
     await page.waitForTimeout(6 * 1000)
-
-    //page.screenshot({path: `screen.png`});
 
     await page.waitForSelector('#didomi-notice-disagree-button', {timeout: 7500})
         .catch((error) => {
@@ -79,12 +77,17 @@ async function main(username, password) {
     await cursor.click('#didomi-notice-disagree-button')
     console.log("after didomi click")
 
-    await page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 7500})
+    await page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 10000})
+        .catch((error) => {
+            console.log("[ERROR]: button[data-qa-id=\"profilarea-login\"] exceded 10000")
+            throw error
+        })
+
     await cursor.click('button[data-qa-id="profilarea-login"]')
 
     await page.waitForTimeout(2 * 1000)
 
-    await completeForm(page, username, password)
+    await completeForm(await page, await username, await password)
 
     await page.waitForTimeout(2 * 1000)
 
@@ -92,11 +95,11 @@ async function main(username, password) {
 
     await page.waitForTimeout(2 * 1000)
 
-    await console.log("token: ", token)
-    await console.log("cookie: ", cookie)
-    await console.log("accountId: ", accountId)
+    await console.log("token: ", await token)
+    await console.log("cookie: ", await cookie)
+    await console.log("accountId: ", await accountId)
 
-    return Promise.all([token, cookie, accountId])
+    return Promise.all([await token, await cookie, await accountId])
         .then((values) => {
             console.log('Token + accountId promises OK')
             browser.close()
@@ -112,20 +115,18 @@ async function main(username, password) {
 async function submitDoubleAuthWindow(page) {
     const plusTardButton = await page.$x("//a[contains(., 'Plus tard')]")
 
-    if (plusTardButton != null) {
+    if (await plusTardButton != null) {
         //await console.log("plusTardButton not equals null: ", plusTardButton[0])
         await cursor.click(plusTardButton[0])
         await console.log("plusTardButton after click")
     }
-    //await cursor.click(plusTardButton)
-    //await plusTardButton.click()
 }
 
 async function completeForm(page, username, password) {
     await console.log("inCompleteForm")
     let emailInput = await page.waitForSelector('input[type="email"]')
     await cursor.click('input[type="email"]')
-    await emailInput.type(username, {delay: Math.floor(Math.random() * (250 - 100 + 1) + 100)})
+    await emailInput.type(await username, {delay: Math.floor(Math.random() * (250 - 100 + 1) + 100)})
 
     let passwordInput = await page.waitForSelector('input[type="password"]')
     await cursor.click('input[type="password"]')
@@ -138,9 +139,9 @@ async function completeForm(page, username, password) {
             throw error
         })
 
-    await cursor.move(submitButton)
+    await cursor.move(await submitButton)
     await console.log("Submit form click")
-    await cursor.click(submitButton)
+    await cursor.click(await submitButton)
 }
 
 
