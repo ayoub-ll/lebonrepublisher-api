@@ -13,7 +13,7 @@ var cursor = null
 async function main(username, password) {
     const browser = await puppeteer.launch({
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-features=site-per-process'],
-        headless: true,
+        headless: false,
         defaultViewport: {width: 1100, height: 768},
     })
 
@@ -44,9 +44,10 @@ async function main(username, password) {
                 await request.continue()
             }),
         ),
-        90000, //
+        120000, //
     ).catch((e) => {
         console.error('[ERROR] token timeout 90sec in authService.js L.45')
+        browser.close()
         throw e
     })
 
@@ -60,8 +61,10 @@ async function main(username, password) {
                 request.method() === 'GET'
             ) {
                 let responseJson = response.json()
-                storeId = responseJson.storeId
-                resolve(storeId)
+                responseJson.then((values) => {
+                    resolve(values.storeId)
+                })
+
             }
         }),
     )
@@ -113,11 +116,22 @@ async function main(username, password) {
     console.log("accountId: ", accountId)
     */
 
-    return Promise.all([await token, await cookie, await accountId])
-        .then((values) => {
-            console.log('Token + accountId promises OK')
+    return await Promise.all([
+        await token.catch((reason) => {
+            console.error('[ERROR] token error in authService: ', reason)
             browser.close()
-            return {token: values[0], cookie: cookie, accountId: values[1]}
+            throw '[ERROR] token error in authService'
+        }),
+        await cookie,
+        await accountId.catch((reason) => {
+            console.error('[ERROR] accountId error in authService: ', reason)
+            browser.close()
+            throw '[ERROR] accountId error in authService'
+        })])
+        .then((values) => {
+            console.log('Token + accountId promises OK, values: ', values)
+            browser.close()
+            return {token: values[0], cookie: values[1], accountId: values[2]}
         })
         .catch((reason) => {
             console.log('AUTH PROMISES ERROR')

@@ -58,7 +58,7 @@ async function resolveCaptcha(page, cursor) {
                     await page.waitForTimeout(
                         Math.floor(Math.random() * (2100 - 1000 + 1) + 1000),
                     )
-                    if (await !captchaNeedSlide(frame)) {
+                    if (!await captchaNeedSlide(frame)) {
                         await clickVerifyButton(frame, cursor, true)
                     }
 
@@ -115,15 +115,15 @@ function isCaptchaFailed(page) {
                 return false
             })
             .catch(() => {
-                page.waitForSelector('#didomi-notice-disagree-button', {timeout: 12000})
+                page.waitForSelector('#didomi-notice-disagree-button', {timeout: 30000})
                     .then(() => {
                         console.log("NO CAPTCHA FAIL DETECTED")
                         resolve(false)
                         return false
                     })
-                    .catch(() => {
-                        console.log("CAPTCHA FAIL DETECTED")
-                        page.screenshot({path: `captchaFail.png`})
+                    .catch((e) => {
+                        console.log("CAPTCHA FAIL DETECTED: ", e)
+                        //page.screenshot({path: `captchaFail.png`})
                         resolve(true)
                         return true
                     })
@@ -156,6 +156,11 @@ async function getCaptchaImages(frame) {
             console.log(".geetest_canvas_img NOT DETECTED")
             throw e
         })
+
+    if (!frame) {
+        console.error('[ERROR] frame null in getCaptchaImages')
+        throw '[ERROR] frame null in getCaptchaImages'
+    }
 
     const images = await frame.$$eval(
         '.geetest_canvas_img canvas',
