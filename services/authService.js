@@ -43,7 +43,9 @@ async function main(username, password) {
                 }
                 await request.continue()
             }),
-        ),
+        ).catch((e) => {
+            console.error('[ERROR] Error in token promise in authService.js: ', e)
+        }),
         120000, //
     ).catch((e) => {
         console.error('[ERROR] token timeout 90sec in authService.js L.45')
@@ -152,18 +154,18 @@ async function submitDoubleAuthWindow(page) {
 
 async function completeForm(page, username, password) {
     await console.log("inCompleteForm")
-    let emailInput = await page.waitForSelector('input[type="email"]', {timeout: 4000})
+    let emailInput = await page.waitForSelector('input[type="email"]', {timeout: 8000})
         .catch((error) => {
-            console.log("[ERROR]: input[type=\"email\"] timeout/not found")
+            console.log("[ERROR]: input[type=\"email\"] timeout/not found: ", e)
             throw error
         })
 
     await cursor.click('input[type="email"]')
     await emailInput.type(await username, {delay: Math.floor(Math.random() * (250 - 100 + 1) + 100)})
 
-    let passwordInput = await page.waitForSelector('input[type="password"]', {timeout: 4000})
+    let passwordInput = await page.waitForSelector('input[type="password"]', {timeout: 8000})
         .catch((error) => {
-            console.log("[ERROR]: input[type=\"password\"] timeout/not found")
+            console.log("[ERROR]: input[type=\"password\"] timeout/not found: ", e)
             throw error
         })
 
