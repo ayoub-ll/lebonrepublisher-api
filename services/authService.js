@@ -156,7 +156,7 @@ async function completeForm(page, username, password) {
     await console.log("inCompleteForm")
     let emailInput = await page.waitForSelector('input[type="email"]', {timeout: 8000})
         .catch((error) => {
-            console.log("[ERROR]: input[type=\"email\"] timeout/not found: ", e)
+            console.log("[ERROR]: input[type=\"email\"] timeout/not found: ", error)
             throw error
         })
 
@@ -165,7 +165,7 @@ async function completeForm(page, username, password) {
 
     let passwordInput = await page.waitForSelector('input[type="password"]', {timeout: 8000})
         .catch((error) => {
-            console.log("[ERROR]: input[type=\"password\"] timeout/not found: ", e)
+            console.log("[ERROR]: input[type=\"password\"] timeout/not found: ", error)
             throw error
         })
 
