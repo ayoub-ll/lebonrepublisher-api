@@ -225,7 +225,7 @@ async function getPuzzlePieceSlotCenterPosition(diffImage) {
     cv.threshold(src, dst, 150, 255, cv.THRESH_BINARY_INV)
 
     // This will find the contours of the image.
-    const contours = new cv.MatVector()
+    const contours = await new cv.MatVector()
     const hierarchy = new cv.Mat()
     cv.findContours(
         dst,
@@ -236,8 +236,8 @@ async function getPuzzlePieceSlotCenterPosition(diffImage) {
     )
 
     // Next, extract the center position from these contours.
-    const contour = contours.get(0)
-    const moment = cv.moments(contour)
+    const contour = await contours.get(0)
+    const moment = cv.moments(await contour)
     const cx = Math.floor(moment.m10 / moment.m00)
     const cy = Math.floor(moment.m01 / moment.m00)
 

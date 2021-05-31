@@ -14,7 +14,7 @@ async function main(username, password) {
     const browser = await puppeteer.launch({
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-features=site-per-process'],
         headless: true,
-        defaultViewport: {width: 1100, height: 768},
+        defaultViewport: {width: 1920, height: 1080}
     })
 
     var page = await browser.newPage()
@@ -34,11 +34,18 @@ async function main(username, password) {
                 let auth = await request.headers()['authorization']
                 if (
                     await process.env.lbc_token_endpoint_regex === request.url() &&
-                    await auth != null
+                    await auth != null &&
+                    await page.cookies != null &&
+                    await page.cookies !== undefined
                 ) {
-                    cookie = await (await page.cookies()).map((cookie) => {
-                        return `${cookie.name}=${cookie.value}`;
+                    const cookies = await page.cookies()
+
+                    cookie = await cookies.map((cookie) => {
+                        if (cookie != null && cookie.name != null && cookie.value != null) {
+                            return `${cookie.name}=${cookie.value}`
+                        }
                     }).join('; ')
+
                     resolve(auth)
                 }
                 await request.continue()
@@ -47,7 +54,8 @@ async function main(username, password) {
             console.error('[ERROR] Error in token promise in authService.js: ', e)
         }),
         120000, //
-    ).catch((e) => {
+    )
+        .catch((e) => {
         console.error('[ERROR] token timeout 90sec in authService.js L.45')
         browser.close()
         throw e
@@ -118,26 +126,25 @@ async function main(username, password) {
     console.log("accountId: ", accountId)
     */
 
-    return await Promise.all([
-        await token.catch((reason) => {
+    return Promise.all([
+        token.catch((reason) => {
             console.error('[ERROR] token error in authService: ', reason)
-            browser.close()
+            //browser.close()
             throw '[ERROR] token error in authService'
         }),
-        await cookie,
-        await accountId.catch((reason) => {
+        accountId.catch((reason) => {
             console.error('[ERROR] accountId error in authService: ', reason)
-            browser.close()
+            //browser.close()
             throw '[ERROR] accountId error in authService'
         })])
         .then((values) => {
             console.log('Token + accountId promises OK, values: ', values)
-            browser.close()
-            return {token: values[0], cookie: values[1], accountId: values[2]}
+            //browser.close()
+            return {token: values[0], cookie: cookie, accountId: values[1]}
         })
         .catch((reason) => {
-            console.log('AUTH PROMISES ERROR')
-            browser.close()
+            console.log('AUTH PROMISES ERROR: ', reason)
+            //browser.close()
             return 404
         })
 }

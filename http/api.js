@@ -44,6 +44,7 @@ app.post('/auth', (req, res) => {
                 res.status(404).json({error: 'Account not found'})
                 res.send()
             } else {
+                console.log('api.js: authService result not null')
                 const token = result.token
                 const cookie = result.cookie
                 const accountId = result.accountId
