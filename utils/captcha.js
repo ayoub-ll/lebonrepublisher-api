@@ -158,7 +158,7 @@ async function getCaptchaImages(frame) {
         })
 
     if (!frame) {
-        console.error('[ERROR] frame null in getCaptchaImages')
+        await console.error('[ERROR] frame null in getCaptchaImages')
         throw '[ERROR] frame null in getCaptchaImages'
     }
 
