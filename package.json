@@ -7,6 +7,7 @@
     "@extra/humanize": "^4.2.2-next.616",
     "axios": "^0.21.1",
     "config": "^3.3.6",
+    "console-stamp": "^3.0.3",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "ghost-cursor": "^1.1.5",

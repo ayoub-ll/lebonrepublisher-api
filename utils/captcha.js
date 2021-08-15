@@ -112,20 +112,17 @@ function isCaptchaFailed(page) {
             .then(() => {
                 console.log("NO CAPTCHA FAIL DETECTED")
                 resolve(false)
-                return false
             })
             .catch(() => {
                 page.waitForSelector('#didomi-notice-disagree-button', {timeout: 30000})
                     .then(() => {
                         console.log("NO CAPTCHA FAIL DETECTED")
                         resolve(false)
-                        return false
                     })
                     .catch((e) => {
-                        console.log("CAPTCHA FAIL DETECTED: ", e)
-                        //page.screenshot({path: `captchaFail.png`})
+                        console.error("CAPTCHA FAIL DETECTED: ", e)
+                        page.screenshot({path: `captchaFail.png`})
                         resolve(true)
-                        return true
                     })
             })
     })

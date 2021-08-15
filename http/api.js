@@ -7,6 +7,7 @@ const mainMiddlewares = require('./middlewares/mainMiddlewares')
 const app = express()
 
 app.use(express.json())
+app.use(clientErrorHandler)
 
 // auth middleware: check auth api-key
 app.use(mainMiddlewares.apiKeyMiddleware)
@@ -39,12 +40,12 @@ app.post('/auth', (req, res) => {
 
     auth.getToken(email, password)
         .then((result) => {
-            if (result == 404) {
-                console.log('Account not found. Token promise timeout')
+            if (result === 404) {
+                console.error('Account not found. Token promise timeout')
                 res.status(404).json({error: 'Account not found'})
                 res.send()
             } else {
-                console.log('api.js: authService result not null')
+                console.info('api.js SUCCESS: authService result not null')
                 const token = result.token
                 const cookie = result.cookie
                 const accountId = result.accountId
@@ -59,9 +60,10 @@ app.post('/auth', (req, res) => {
             }
         })
         .catch((e) => {
-            console.log("getToken error: ", e)
+            console.error("getToken error: ", e)
             res.status(500).json({error: 'serv error'})
             res.send()
+            process.exit()
         })
 })
 
@@ -91,6 +93,7 @@ app.post('/getAds', mainMiddlewares.tokenMiddleware, async (req, res) => {
         .catch((error) => {
             res.status(500)
             res.send()
+            process.exit()
         })
 })
 
@@ -125,9 +128,18 @@ app.post('/republishAds', mainMiddlewares.tokenMiddleware, async (req, res) => {
         .catch((error) => {
             res.status(500)
             res.send(error)
+            process.exit()
         })
 })
 
 app.listen(process.env.PORT || 3000, () => {
     console.log(`LBP API listening at http://localhost:`, process.env.PORT)
 })
+
+function clientErrorHandler (err, req, res, next) {
+    if (req.xhr) {
+        res.status(500).send({ error: 'Something failed!' })
+    } else {
+        next(err)
+    }
+}

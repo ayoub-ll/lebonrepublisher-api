@@ -3,6 +3,7 @@ const puppeteer = require('puppeteer-extra')
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 const captcha = require('../utils/captcha')
 const randomUseragent = require('random-useragent')
+require( 'console-stamp' )( console )
 puppeteer.use(StealthPlugin())
 
 const timeout = (prom, time) =>
@@ -52,6 +53,7 @@ async function main(username, password) {
             }),
         ).catch((e) => {
             console.error('[ERROR] Error in token promise in authService.js: ', e)
+            browser.close()
         }),
         120000, //
     )
@@ -72,7 +74,6 @@ async function main(username, password) {
             ) {
                 try {
                     let responseJson = await response.json()
-                    //await console.log("responseJson: ", responseJson)
                     resolve(responseJson.storeId)
                 } catch (e) {
                     await console.error("[ERROR] responseJson body error: ", e)
@@ -91,6 +92,7 @@ async function main(username, password) {
     await page.waitForSelector('#didomi-notice-disagree-button', {timeout: 7500})
         .catch((error) => {
             console.log("[ERROR]: #didomi-notice-disagree-button not found")
+            browser.close()
             throw error
         })
 
@@ -105,8 +107,10 @@ async function main(username, password) {
             captcha.resolveCaptcha(page, cursor)
             console.log("AuthService: after new captcha resolve + page refresh")
             page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 10000})
-                .catch((error) => {
+                .catch((e) => {
                     console.error('[ERROR] button[data-qa-id="profilarea-login"] not found (10000 sec timeout)')
+                    browser.close()
+                    throw e
                 })
         })
 
@@ -122,12 +126,6 @@ async function main(username, password) {
 
     await page.waitForTimeout(2 * 1000)
 
-    /*
-    console.log("token: ", token)
-    console.log("cookie: ", cookie)
-    console.log("accountId: ", accountId)
-    */
-
     return Promise.all([
         token,
         accountId
@@ -140,7 +138,7 @@ async function main(username, password) {
         .catch((reason) => {
             console.log('AUTH PROMISES ERROR: ', reason)
             browser.close()
-            return 404
+            throw reason
         })
 }
 
@@ -159,6 +157,7 @@ async function completeForm(page, username, password) {
     let emailInput = await page.waitForSelector('input[type="email"]', {timeout: 18000})
         .catch((error) => {
             console.log("[ERROR]: input[type=\"email\"] timeout/not found: ", error)
+            browser.close()
             throw error
         })
 
@@ -168,6 +167,7 @@ async function completeForm(page, username, password) {
     let passwordInput = await page.waitForSelector('input[type="password"]', {timeout: 18000})
         .catch((error) => {
             console.log("[ERROR]: input[type=\"password\"] timeout/not found: ", error)
+            browser.close()
             throw error
         })
 
@@ -178,6 +178,7 @@ async function completeForm(page, username, password) {
     const submitButton = await page.waitForSelector('[type="submit"]', {timeout: 2000})
         .catch((error) => {
             console.log("[ERROR]: [type=submit] not found")
+            browser.close()
             throw error
         })
 
