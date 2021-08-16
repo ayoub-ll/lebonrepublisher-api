@@ -16,7 +16,7 @@ var browser = null
 async function main(username, password) {
     browser = await puppeteer.launch({
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-features=site-per-process'],
-        headless: true,
+        headless: false,
         defaultViewport: {width: 1100, height: 768},
     })
 
@@ -57,7 +57,7 @@ async function main(username, password) {
             console.error('[ERROR] Error in token promise in authService.js: ', e)
             browser.close()
         }),
-        120000, //
+        360000, //
     )
         .catch((e) => {
             console.error('[ERROR] token timeout 90sec in authService.js L.45')

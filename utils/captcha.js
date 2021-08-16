@@ -4,19 +4,22 @@ const {cv} = require('opencv-wasm')
 const randomUseragent = require('random-useragent')
 
 function captchaNeedSlide(frame) {
+    console.log("1 PASSAGE")
     return new Promise((resolve) => {
-        frame.waitForSelector('.geetest_fullpage_click', {timeout: 5000})
-            .then((result) => {
+
+        frame.waitForSelector('.geetest_fullpage_click', {
+            visible: true,
+            timeout: 4000
+        })
+            .then(async (result) => {
                 console.log(".geetest_fullpage_click DETECTED")
-                console.log("geeTestFullPageClick style: ", result.style)
-                console.log("geeTestFullPageClick style display: ", result.style.display)
-                resolve(result.style.display === 'none')
-                return result.style.display === 'none'
-            })
-            .catch(() => {
-                console.log(".geetest_fullpage_click NOT DETECTED")
-                resolve(false)
-                return false
+                console.log(".geetest_fullpage_click boundingBox: ", await result.boundingBox())
+                //console.log(".geetest_fullpage_click style display: ", result.style.display)
+
+                if (result.boundingBox() === null) {
+                    await resolve(false)
+                }
+                await resolve(true)
             })
     })
 }
@@ -56,9 +59,12 @@ async function resolveCaptcha(page, cursor) {
                 while (await isCaptchaFailed(await page)) {
                     await console.log("IN isCaptchaFailed WHILE")
                     await page.waitForTimeout(
-                        Math.floor(Math.random() * (2100 - 1000 + 1) + 1000),
+                        Math.floor(Math.random() * (2100 - 1000 + 1) + 500),
                     )
-                    if (!await captchaNeedSlide(frame)) {
+
+                    let captchaNeedSlideResult = await captchaNeedSlide(await frame)
+
+                    if (await captchaNeedSlideResult === false) {
                         await clickVerifyButton(frame, cursor, true)
                     }
 
