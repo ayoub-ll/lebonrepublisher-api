@@ -21,6 +21,9 @@ function captchaNeedSlide(frame) {
                 }
                 await resolve(true)
             })
+            .catch((e) => {
+                resolve (false)
+            })
     })
 }
 
@@ -28,6 +31,7 @@ async function resolveCaptcha(page, cursor) {
     console.log("inResolveCatpcha")
 
     while (!(await page.$('#didomi-notice-disagree-button'))) {
+        console.log("in !(await page.$('#didomi-notice-disagree-button')) WHILE")
         await page.waitForTimeout(3500)
 
         const elementHandle = await page.$('iframe')
