@@ -11,8 +11,10 @@ const timeout = (prom, time) =>
 
 var cursor = null
 
+var browser = null
+
 async function main(username, password) {
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-features=site-per-process'],
         headless: true,
         defaultViewport: {width: 1100, height: 768},
