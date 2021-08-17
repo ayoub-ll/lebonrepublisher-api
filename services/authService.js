@@ -85,7 +85,7 @@ async function main(username, password) {
     )
 
     await page.goto(process.env.lbc_login_url, {waitUntil: 'domcontentloaded'})
-    await page.waitForTimeout(4 * 1000)
+    await page.waitForTimeout(5 * 1000)
 
     await captcha.resolveCaptcha(await page, await cursor)
     await console.log("AuthService: after captcha resolve + page refresh")
@@ -118,11 +118,11 @@ async function main(username, password) {
 
     await cursor.click('button[data-qa-id="profilarea-login"]')
 
-    await page.waitForTimeout(2 * 1000)
+    await page.waitForTimeout(4 * 1000)
 
     await completeForm(page, username, password)
 
-    await page.waitForTimeout(2 * 1000)
+    await page.waitForTimeout(3 * 1000)
 
     await submitDoubleAuthWindow(page)
 

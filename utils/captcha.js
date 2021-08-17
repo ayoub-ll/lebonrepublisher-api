@@ -28,10 +28,10 @@ function captchaNeedSlide(frame) {
 }
 
 async function resolveCaptcha(page, cursor) {
-    await console.log("inResolveCatpcha")
+    await console.log("inResolveCaptcha")
     await console.log("page.$('#didomi-notice-disagree-button') : ", await page.$('#didomi-notice-disagree-button'))
 
-    while (!(await page.$('#didomi-notice-disagree-button'))) {
+    while (await page.$('#didomi-notice-disagree-button') === null) {
         await console.log("in !(await page.$('#didomi-notice-disagree-button')) WHILE")
         await page.waitForTimeout(3500)
 
