@@ -119,15 +119,16 @@ async function captcha(page, frame, cursor) {
 function isCaptchaFailed(page) {
     page.waitForTimeout(5000)
     return new Promise((resolve) => {
-        page.waitForSelector('input[type="email"]', {timeout: 8000})
+        page.$('input[type="email"]')
             .then(() => {
-                console.log("NO CAPTCHA FAIL DETECTED")
+                console.log("NO CAPTCHA FAIL DETECTED L.124")
                 resolve(false)
             })
             .catch(() => {
-                page.waitForSelector('#didomi-notice-disagree-button', {timeout: 30000})
+                page.waitForTimeout(1000)
+                page.$('#didomi-notice-disagree-button')
                     .then(() => {
-                        console.log("NO CAPTCHA FAIL DETECTED")
+                        console.log("NO CAPTCHA FAIL DETECTED L.13à")
                         resolve(false)
                     })
                     .catch((e) => {
