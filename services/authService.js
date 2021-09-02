@@ -102,7 +102,7 @@ async function main(username, password) {
     await cursor.click('#didomi-notice-disagree-button')
     await console.log("after didomi click")
 
-    await page.waitForTimeout(2 * 1000)
+    await page.waitForTimeout(4 * 1000)
 
     await page.waitForSelector('button[data-qa-id="profilarea-login"]', {timeout: 10000})
         .catch((error) => {
