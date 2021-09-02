@@ -4,7 +4,6 @@ const {cv} = require('opencv-wasm')
 const randomUseragent = require('random-useragent')
 
 function captchaNeedSlide(frame) {
-    console.log("1 PASSAGE")
     return new Promise((resolve) => {
 
         frame.waitForSelector('.geetest_fullpage_click', {
@@ -14,7 +13,6 @@ function captchaNeedSlide(frame) {
             .then(async (result) => {
                 console.log(".geetest_fullpage_click DETECTED")
                 console.log(".geetest_fullpage_click boundingBox: ", await result.boundingBox())
-                //console.log(".geetest_fullpage_click style display: ", result.style.display)
 
                 if (result.boundingBox() === null) {
                     await resolve(false)
@@ -22,7 +20,7 @@ function captchaNeedSlide(frame) {
                 await resolve(true)
             })
             .catch((e) => {
-                resolve (false)
+                resolve(false)
             })
     })
 }
@@ -119,21 +117,21 @@ async function captcha(page, frame, cursor) {
 function isCaptchaFailed(page) {
     page.waitForTimeout(5000)
     return new Promise((resolve) => {
-        page.$('input[type="email"]')
+        page.waitForSelector('#didomi-notice-disagree-button', {timeout: 5000})
             .then(() => {
                 console.log("NO CAPTCHA FAIL DETECTED L.124")
                 resolve(false)
             })
             .catch(() => {
                 page.waitForTimeout(1000)
-                page.$('#didomi-notice-disagree-button')
+                page.waitForSelector('#didomi-notice-disagree-button', {timeout: 5000})
                     .then(() => {
-                        console.log("NO CAPTCHA FAIL DETECTED L.13à")
+                        console.log("NO CAPTCHA FAIL DETECTED L.130")
                         resolve(false)
                     })
                     .catch((e) => {
                         console.error("CAPTCHA FAIL DETECTED: ", e)
-                        page.screenshot({path: `captchaFail.png`})
+                        //page.screenshot({path: `captchaFail.png`})
                         resolve(true)
                     })
             })

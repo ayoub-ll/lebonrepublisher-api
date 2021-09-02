@@ -16,11 +16,12 @@ var browser = null
 async function main(username, password) {
     browser = await puppeteer.launch({
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-features=site-per-process'],
-        headless: true,
-        defaultViewport: {width: 1100, height: 768},
+        headless: false,
+        defaultViewport: {width: 1100, height: 768}
     })
 
     var page = await browser.newPage()
+
     cursor = await ghostCursor.createCursor(await page)
     await ghostCursor.installMouseHelper(await page)
     await page.setRequestInterception(true)
