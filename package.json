@@ -6,6 +6,7 @@
   "dependencies": {
     "@extra/humanize": "^4.2.2-next.616",
     "axios": "^0.21.1",
+    "chrome-aws-lambda": "^10.1.0",
     "config": "^3.3.6",
     "console-stamp": "^3.0.3",
     "dotenv": "^8.2.0",

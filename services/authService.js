@@ -3,6 +3,7 @@ const puppeteer = require('puppeteer-extra')
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 const captcha = require('../utils/captcha')
 const randomUseragent = require('random-useragent')
+import chromium from 'chrome-aws-lambda'
 require( 'console-stamp' )( console )
 puppeteer.use(StealthPlugin())
 
@@ -14,10 +15,12 @@ var cursor = null
 var browser = null
 
 async function main(username, password) {
-    browser = await puppeteer.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-features=site-per-process'],
+    browser = await chromium.launch({
+        args: [...chromium.args, "--hide-scrollbars", "--disable-web-security", '--no-sandbox', '--disable-setuid-sandbox', '--disable-features=site-per-process'],
         headless: true,
-        defaultViewport: {width: 1100, height: 768}
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath,
+        ignoreHTTPSErrors: true,
     })
 
     var page = await browser.newPage()
