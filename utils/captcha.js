@@ -117,14 +117,14 @@ async function captcha(page, frame, cursor) {
 function isCaptchaFailed(page) {
     page.waitForTimeout(5000)
     return new Promise((resolve) => {
-        page.waitForSelector('#didomi-notice-disagree-button', {timeout: 5000})
+        page.waitForSelector('#didomi-notice-disagree-button', {timeout: 8000})
             .then(() => {
                 console.log("NO CAPTCHA FAIL DETECTED L.124")
                 resolve(false)
             })
             .catch(() => {
                 page.waitForTimeout(1000)
-                page.waitForSelector('#didomi-notice-disagree-button', {timeout: 5000})
+                page.waitForSelector('#didomi-notice-disagree-button', {timeout: 8000})
                     .then(() => {
                         console.log("NO CAPTCHA FAIL DETECTED L.130")
                         resolve(false)

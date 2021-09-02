@@ -16,7 +16,7 @@ var browser = null
 async function main(username, password) {
     browser = await puppeteer.launch({
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-features=site-per-process'],
-        headless: true,
+        headless: false,
         defaultViewport: {width: 1100, height: 768}
     })
 
@@ -125,7 +125,7 @@ async function main(username, password) {
 
     await page.waitForTimeout(3 * 1000)
 
-    await submitDoubleAuthWindow(page)
+    //await submitDoubleAuthWindow(page)
 
     await page.waitForTimeout(2 * 1000)
 
