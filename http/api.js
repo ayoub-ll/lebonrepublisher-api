@@ -9,12 +9,12 @@ const app = express()
 app.use(express.json())
 app.use(clientErrorHandler)
 
-// auth middleware: check auth api-key
-app.use(mainMiddlewares.apiKeyMiddleware)
-
 app.get('/ping', (req, res) => {
     res.status(200).json({msg: 'pong'})
 })
+
+// auth middleware: check auth api-key
+app.use(mainMiddlewares.apiKeyMiddleware)
 
 /**
  * POST /auth
