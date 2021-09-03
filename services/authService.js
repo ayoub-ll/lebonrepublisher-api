@@ -159,6 +159,7 @@ async function completeForm(page, username, password) {
     await console.log("inCompleteForm")
     let emailInput = await page.waitForSelector('input[type="email"]', {timeout: 18000})
         .catch((error) => {
+            page.screenshot({path: `input-email-not-found.png`})
             console.log("[ERROR]: input[type=\"email\"] timeout/not found: ", error)
             browser.close()
             throw error
