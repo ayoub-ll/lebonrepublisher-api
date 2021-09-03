@@ -29,7 +29,11 @@ async function resolveCaptcha(page, cursor) {
     await console.log("inResolveCaptcha")
     await console.log("page.$('#didomi-notice-disagree-button') : ", await page.$('#didomi-notice-disagree-button'))
 
+    let counter = 0
+
     while (await page.$('#didomi-notice-disagree-button') === null) {
+        page.screenshot({path: `didomi-wait` + counter + `.png`})
+
         await console.log("in !(await page.$('#didomi-notice-disagree-button')) WHILE")
         await page.waitForTimeout(3500)
 
