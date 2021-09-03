@@ -136,7 +136,7 @@ function isCaptchaFailed(page) {
                     })
                     .catch((e) => {
                         console.error("CAPTCHA FAIL DETECTED: ", e)
-                        //page.screenshot({path: `captchaFail.png`})
+                        page.screenshot({path: `captchaFail.png`})
                         resolve(true)
                     })
             })
