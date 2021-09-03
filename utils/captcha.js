@@ -32,6 +32,7 @@ async function resolveCaptcha(page, cursor) {
     let counter = 0
 
     while (await page.$('#didomi-notice-disagree-button') === null) {
+        counter = counter+1
         page.screenshot({path: `didomi-wait` + counter + `.png`})
 
         await console.log("in !(await page.$('#didomi-notice-disagree-button')) WHILE")
