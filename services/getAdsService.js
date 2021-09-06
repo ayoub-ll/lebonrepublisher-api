@@ -2,6 +2,8 @@ const axios = require('axios')
 const randomUseragent = require('random-useragent')
 
 function getAds(token, accountId) {
+    console.log("token: ", token)
+    console.log("accountId: ", accountId)
     return new Promise((resolve) =>
         axios
             .post('https://api.leboncoin.fr/api/stats/proxy/v2/account/classifieds/analysis/list', {
@@ -35,8 +37,11 @@ function getAds(token, accountId) {
             .then(function (response) {
                 resolve(response.data.Ads)
             })
-            .catch(function (error) {
-                console.log(error)
+            .catch(function (e) {
+                if (e.response) {
+                    console.log('getAds error HTTP STATUS: ', e.response.status)
+                }
+                throw e
             })
     )
 }

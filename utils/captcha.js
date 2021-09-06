@@ -27,7 +27,7 @@ function captchaNeedSlide(frame) {
 
 async function resolveCaptcha(page, cursor) {
     await console.log("inResolveCaptcha")
-    await console.log("page.$('#didomi-notice-disagree-button') : ", await page.$('#didomi-notice-disagree-button'))
+    //await console.log("page.$('#didomi-notice-disagree-button') : ", await page.$('#didomi-notice-disagree-button'))
 
     let counter = 0
 
@@ -60,6 +60,9 @@ async function resolveCaptcha(page, cursor) {
                 const frame = await elementHandle.contentFrame()
 
                 await clickVerifyButton(frame, cursor, false)
+
+                await page.waitForTimeout(5000)
+
                 await captcha(page, frame, cursor)
                 await page.waitForTimeout(4000)
 

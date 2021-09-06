@@ -5,24 +5,26 @@
   "license": "MIT",
   "dependencies": {
     "@extra/humanize": "^4.2.2-next.616",
-    "axios": "^0.21.1",
+    "axios": "^0.21.3",
     "config": "^3.3.6",
     "console-stamp": "^3.0.3",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "ghost-cursor": "^1.1.5",
     "jimp": "^0.16.1",
+    "jsdom": "^17.0.0",
     "opencv-wasm": "^4.3.0-10",
     "pixelmatch": "^5.2.1",
     "puppeteer": "5",
     "puppeteer-extra": "^3.1.16-next.149",
     "puppeteer-extra-plugin-stealth": "^2.7",
-    "random-useragent": "^0.5.0"
+    "random-useragent": "^0.5.0",
+    "uuid": "^8.3.2"
   },
   "scripts": {
     "start": "node http/api.js"
   },
   "engines": {
-    "node": "15.5.1"
+    "node": "16.8.0"
   }
 }

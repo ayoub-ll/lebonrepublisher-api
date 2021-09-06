@@ -1,6 +1,7 @@
 const dotenv = require('dotenv').config()
 const express = require('express')
 const auth = require('../services/authService')
+const authh = require('../services/authhservice')
 const getAdsService = require('../services/getAdsService')
 const republishAdService = require('../services/republishAdsService')
 const mainMiddlewares = require('./middlewares/mainMiddlewares')
@@ -68,6 +69,61 @@ app.post('/auth', (req, res) => {
 })
 
 /**
+ * POST /authh
+ *
+ * get bearer token LBC from LBC email & password
+ */
+app.post('/authh', (req, res) => {
+    let email = req.body.email
+    let password = req.body.password
+
+    if (!req) {
+        console.error('[ERROR]: Req null in api.js')
+        res.status(500).json({error: 'Req null'})
+        res.send()
+        res.end()
+    }
+
+    if (!email || !password) {
+        console.error('[ERROR]: Email or password not found in request')
+        res.status(401).json({error: 'Email or password not found in request'})
+        res.send()
+    }
+
+    authh.getToken(email, password)
+        .then((result) => {
+            if (result === 404) {
+                console.error('Account not found. Token promise timeout')
+                res.status(404).json({error: 'Account not found'})
+                res.send()
+            } else {
+                console.info('api.js SUCCESS: authService result not null')
+                const token = result.token
+
+                /*
+                const cookie = result.cookie
+                const accountId = result.accountId
+                 */
+
+                if (!token) {
+                    res.status(500).json({error: 'Token null'})
+                    res.send()
+                } else {
+                    res.status(200)
+                    res.send({token/*, cookie, accountId*/})
+                }
+            }
+        })
+        .catch((e) => {
+            console.error("getToken error: ", e)
+            res.status(500).json({error: 'serv error'})
+            res.send()
+            process.exit()
+        })
+})
+
+
+/**
  * POST /getAds
  *
  * get ads from LBC
@@ -90,7 +146,7 @@ app.post('/getAds', mainMiddlewares.tokenMiddleware, async (req, res) => {
             res.status(200)
             res.send(result)
         })
-        .catch((error) => {
+        .catch((e) => {
             res.status(500)
             res.send()
             process.exit()

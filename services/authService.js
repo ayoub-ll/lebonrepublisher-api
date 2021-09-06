@@ -15,12 +15,21 @@ var browser = null
 
 async function main(username, password) {
     browser = await puppeteer.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-features=site-per-process'],
-        headless: true,
-        defaultViewport: {width: 1100, height: 768}
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-features=site-per-process', '--proxy-server=proxy.crawlera.com:8011', '--ignore-certificate-errors'],
+        headless: false,
+        defaultViewport: {width: 1100, height: 768},
+        ignoreHTTPSErrors: true,
+        acceptInsecureCerts: true,
     })
 
     var page = await browser.newPage()
+
+    await page.setDefaultNavigationTimeout(0);
+
+    await page.authenticate({
+        username: '4c5a6b523a7343e1b12b652754bc76d4',
+        password: ''
+    });
 
     cursor = await ghostCursor.createCursor(await page)
     await ghostCursor.installMouseHelper(await page)
@@ -157,7 +166,7 @@ async function submitDoubleAuthWindow(page) {
 
 async function completeForm(page, username, password) {
     await console.log("inCompleteForm")
-    let emailInput = await page.waitForSelector('input[type="email"]', {timeout: 18000})
+    let emailInput = await page.waitForSelector('input[type="email"]', {timeout: 30000})
         .catch((error) => {
             page.screenshot({path: `input-email-not-found.png`})
             console.log("[ERROR]: input[type=\"email\"] timeout/not found: ", error)
@@ -168,7 +177,7 @@ async function completeForm(page, username, password) {
     await cursor.click('input[type="email"]')
     await emailInput.type(await username, {delay: Math.floor(Math.random() * (250 - 100 + 1) + 100)})
 
-    let passwordInput = await page.waitForSelector('input[type="password"]', {timeout: 18000})
+    let passwordInput = await page.waitForSelector('input[type="password"]', {timeout: 30000})
         .catch((error) => {
             console.log("[ERROR]: input[type=\"password\"] timeout/not found: ", error)
             browser.close()
