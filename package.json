@@ -12,6 +12,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "ghost-cursor": "^1.1.5",
+    "https-proxy-agent": "^5.0.0",
     "jimp": "^0.16.1",
     "jsdom": "^17.0.0",
     "opencv-wasm": "^4.3.0-10",

@@ -1,8 +1,11 @@
 const randomUseragent = require('random-useragent')
-const axios = require('axios')
+axios = require('axios')
 const axiosRetry = require('axios-retry')
 axiosRetry(axios, { retries: 3, retryDelay: (retryCount) => {
         return '' * 1000 }})
+const HttpsProxyAgent = require("https-proxy-agent")
+const httpsAgent = new HttpsProxyAgent({host: "zproxy.lum-superproxy.io", port: "22225", auth: "lum-customer-hl_d4cc1e40-zone-zone1-country-fr:qhfblv4yhtam", rejectUnauthorized: false})
+axios = axios.create({httpsAgent: httpsAgent})
 const {v4: uuidv4} = require('uuid')
 const jsdom = require("jsdom")
 const { JSDOM } = jsdom
