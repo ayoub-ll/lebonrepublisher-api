@@ -100,17 +100,15 @@ app.post('/authh', (req, res) => {
                 console.info('api.js SUCCESS: authService result not null')
                 const token = result.token
 
-                /*
-                const cookie = result.cookie
+                const cookies = result.cookies
                 const accountId = result.accountId
-                 */
 
                 if (!token) {
                     res.status(500).json({error: 'Token null'})
                     res.send()
                 } else {
                     res.status(200)
-                    res.send({token/*, cookie, accountId*/})
+                    res.send({token, cookies, accountId})
                 }
             }
         })
