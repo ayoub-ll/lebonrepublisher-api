@@ -1,5 +1,8 @@
 const randomUseragent = require('random-useragent')
 const axios = require('axios')
+const axiosRetry = require('axios-retry')
+axiosRetry(axios, { retries: 3, retryDelay: (retryCount) => {
+        return '' * 1000 }})
 const {v4: uuidv4} = require('uuid')
 const jsdom = require("jsdom")
 const { JSDOM } = jsdom
