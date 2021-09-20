@@ -1,11 +1,14 @@
 const randomUseragent = require('random-useragent')
-axios = require('axios')
 const axiosRetry = require('axios-retry')
-axiosRetry(axios, { retries: 3, retryDelay: (retryCount) => {
-        return '' * 1000 }})
+/*
+axiosRetry(axios, { retries: 1, retryDelay: (retryCount) => {
+        return retryCount * 1000 }})
+*/
 const HttpsProxyAgent = require("https-proxy-agent")
-const httpsAgent = new HttpsProxyAgent({host: "zproxy.lum-superproxy.io", port: "22225", auth: "lum-customer-hl_d4cc1e40-zone-zone1-country-fr:qhfblv4yhtam", rejectUnauthorized: false})
-axios = axios.create({httpsAgent: httpsAgent})
+axios = require('axios')
+//const httpsAgent = new HttpsProxyAgent({host: "server.proxyland.io", port: "9090", auth: "HRcGoXHpUXiBlMPGorTCGdCal:jKBIQMqXXAoKaHGsTxKBcUOCD", rejectUnauthorized: false})
+//const httpAgent = new HttpsProxyAgent({host: "server.proxyland.io", port: "9090", auth: "HRcGoXHpUXiBlMPGorTCGdCal:jKBIQMqXXAoKaHGsTxKBcUOCD", rejectUnauthorized: false})
+//axios = axios.create({httpsAgent: httpsAgent, httpAgent: httpAgent, proxy: false})
 const {v4: uuidv4} = require('uuid')
 const jsdom = require("jsdom")
 const { JSDOM } = jsdom
@@ -13,13 +16,12 @@ const { JSDOM } = jsdom
 async function main(username, password) {
 
     const stateId = await uuidv4()
-    const freshDatadomeCookie = await (await getFreshDatadomeCookie()).datadome
+    const freshDatadomeCookie = (await getFreshDatadomeCookie())
     let {cookieSecureInstall, cookieDatadome} = await installRequest(stateId, await freshDatadomeCookie)
     let {cookieSecureLogin, cookieSecureLoginLax, cookieDatadome2} = await loginRequest(username, password, stateId, cookieSecureInstall, cookieDatadome)
     const temporaryToken = await apiAuthorizeRequest(stateId, cookieSecureLogin, cookieSecureLoginLax, cookieSecureInstall, cookieDatadome2)
 
     const {token, cookieDatadome3} = await tokenRequest(stateId, temporaryToken)
-
     const {accountId, cookieDatadome4, cookies} = await personalDataRequest(cookieSecureInstall, cookieDatadome2, token)
 
     return Promise.all([
@@ -37,24 +39,43 @@ async function main(username, password) {
 }
 
 function getFreshDatadomeCookie() {
-    return new Promise((resolve) => {
-        var options = {
-            method: 'GET',
-            url: 'https://lbc-aio.p.rapidapi.com/cookie',
-            headers: {
-                'x-rapidapi-host': 'lbc-aio.p.rapidapi.com',
-                'x-rapidapi-key': 'c9e2aeae0bmshfbd0edfc0a7a9f0p11ee51jsn450cf557adba'
-            }
-        }
-
-        axios.request(options)
+    return new Promise((resolve) =>
+        axios
+            .post('https://dd.leboncoin.fr/js/', 'jsData={"ttst":96.89999997615814,"ifov":false,"wdifts":false,"wdifrm":false,"wdif":false,"br_h":215,"br_w":1280,"br_oh":775,"br_ow":1280,"nddc":1,"rs_h":800,"rs_w":1280,"rs_cd":24,"phe":false,"nm":false,"jsf":false,"ua":"Mozilla/5.0+(Macintosh;+Intel+Mac+OS+X+10_15_7)+AppleWebKit/537.36+(KHTML,+like+Gecko)+Chrome/92.0.4515.159+Safari/537.36","lg":"en-GB","pr":2,"hc":4,"ars_h":775,"ars_w":1280,"tz":-120,"str_ss":true,"str_ls":true,"str_idb":true,"str_odb":true,"plgod":false,"plg":3,"plgne":true,"plgre":true,"plgof":false,"plggt":false,"pltod":false,"hcovdr":false,"plovdr":false,"ftsovdr":false,"lb":false,"eva":33,"lo":false,"ts_mtp":0,"ts_tec":false,"ts_tsa":false,"vnd":"Google+Inc.","bid":"NA","mmt":"application/pdf,application/x-google-chrome-pdf,application/x-nacl,application/x-pnacl","plu":"Chrome+PDF+Plugin,Chrome+PDF+Viewer,Native+Client","hdn":false,"awe":false,"geb":false,"dat":false,"med":"defined","aco":"probably","acots":false,"acmp":"probably","acmpts":true,"acw":"probably","acwts":false,"acma":"maybe","acmats":false,"acaa":"probably","acaats":true,"ac3":"","ac3ts":false,"acf":"probably","acfts":false,"acmp4":"maybe","acmp4ts":false,"acmp3":"probably","acmp3ts":false,"acwm":"maybe","acwmts":false,"ocpt":false,"vco":"probably","vcots":false,"vch":"probably","vchts":true,"vcw":"probably","vcwts":true,"vc3":"maybe","vc3ts":false,"vcmp":"","vcmpts":false,"vcq":"","vcqts":false,"vc1":"probably","vc1ts":false,"dvm":8,"sqt":false,"so":"landscape-primary","wbd":false,"wbdm":true,"wdw":true,"cokys":"bG9hZFRpbWVzY3NpYXBwcnVudGltZQ==L=","ecpc":false,"lgs":true,"lgsod":false,"bcda":true,"idn":true,"capi":false,"svde":false,"vpbq":true,"xr":true,"bgav":true,"rri":true,"idfr":true,"ancs":true,"inlc":true,"cgca":true,"inlf":true,"tecd":true,"sbct":true,"aflt":true,"rgp":true,"bint":true,"spwn":false,"emt":false,"bfr":false,"dbov":false,"glvd":"Intel+Inc.","glrd":"Intel(R)+Iris(TM)+Graphics+6100","tagpu":28.200000017881393,"prm":true,"tzp":"Europe/Paris","cvs":true,"usb":"defined","dcok":".leboncoin.fr","ewsi":false}&events=[{"source":{"x":0,"y":2},"message":"scroll","date":1632159278387,"id":2},{"source":{"x":0,"y":6},"message":"scroll","date":1632159279084,"id":2},{"source":{"x":0,"y":45},"message":"scroll","date":1632159279203,"id":2},{"source":{"x":0,"y":-30},"message":"scroll","date":1632159281107,"id":2},{"source":{"x":255,"y":139},"message":"mouse+move","date":1632159282127,"id":0},{"source":{"x":0,"y":-23},"message":"scroll","date":1632159282270,"id":2},{"source":{"x":254,"y":141},"message":"mouse+move","date":1632159283501,"id":0},{"source":{"x":129,"y":197},"message":"mouse+move","date":1632159285405,"id":0},{"source":{"x":553,"y":30},"message":"mouse+move","date":1632159285505,"id":0},{"source":{"x":594,"y":12},"message":"mouse+move","date":1632159285669,"id":0},{"source":{"x":321,"y":4},"message":"mouse+move","date":1632159286124,"id":0},{"source":{"x":115,"y":157},"message":"mouse+move","date":1632159286230,"id":0},{"source":{"x":42,"y":214},"message":"mouse+move","date":1632159287320,"id":0},{"source":{"x":116,"y":8},"message":"mouse+move","date":1632159287500,"id":0}]&eventCounters={"mouse+move":9,"mouse+click":0,"scroll":5,"touch+start":0,"touch+end":0,"touch+move":0,"key+press":0,"key+down":0,"key+up":0}&jsType=le&cid=Mw0LvlAC6hx3TaNUxaLv3v6NWNMgdqHCPw6HOAutJXn18cFe1B8xHecAu.ki1tyDadoQEJMu_~u7IW1XWLKhtO82OA5S9Vlatalcd5AjKC&ddk=05B30BD9055986BD2EE8F5A199D973&Referer=https%3A%2F%2Fwww.leboncoin.fr%2F&request=%2F&responsePage=origin&ddv=4.1.64',
+                {
+                    headers: {
+                        'authority': 'dd.leboncoin.fr',
+                        'content-length': '0',
+                        "sec-ch-ua": '"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"',
+                        'sec-ch-ua-mobile': '?0',
+                        'user-agent': randomUseragent.getRandom(function (ua) {
+                            return parseFloat(ua.browserVersion) >= 20;
+                        }),
+                        'content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                        'accept': '*/*',
+                        'origin': 'https://www.leboncoin.fr',
+                        'sec-fetch-site': 'same-site',
+                        'sec-fetch-mode': 'no-cors',
+                        'sec-fetch-dest': 'empty',
+                        'referer': 'https://www.leboncoin.fr/',
+                        'accept-language': 'en-GB,en;q=0.9',
+                        'cookie': '__Secure-InstanceId=f6955f3e-3fbd-44ec-b69e-f91590259d62; ry_ry-l3b0nco_realytics=eyJpZCI6InJ5X0U2NjBCQzgzLTIwQkMtNDI0RS04NjBGLUQzNjE1Rjc1QTA4OCIsImNpZCI6bnVsbCwiZXhwIjoxNjYyNTQ5MzI5OTE4LCJjcyI6bnVsbH0%3D; didomi_token=eyJ1c2VyX2lkIjoiMTdiYmZmODQtZGZjYy02NzFhLTllODYtYzk3MjYyOGVhZmNiIiwiY3JlYXRlZCI6IjIwMjEtMDktMDhUMTE6NDg6NTguMDI2WiIsInVwZGF0ZWQiOiIyMDIxLTA5LTA4VDExOjQ4OjU4LjAyNloiLCJ2ZW5kb3JzIjp7ImRpc2FibGVkIjpbImFtYXpvbiIsInNhbGVzZm9yY2UiLCJnb29nbGUiLCJjOm5leHQtcGVyZm9ybWFuY2UiLCJjOmNvbGxlY3RpdmUtaGhTWXRSVm4iLCJjOnJvY2t5b3UiLCJjOnB1Ym9jZWFuLWI2QkpNdHNlIiwiYzpydGFyZ2V0LUdlZk1WeWlDIiwiYzpzY2hpYnN0ZWQtTVFQWGFxeWgiLCJjOmdyZWVuaG91c2UtUUtiR0JrczQiLCJjOnJlYWx6ZWl0Zy1iNktDa3h5ViIsImM6dmlkZW8tbWVkaWEtZ3JvdXAiLCJjOnN3aXRjaC1jb25jZXB0cyIsImM6bHVjaWRob2xkLXlmdGJXVGY3IiwiYzpsZW1vbWVkaWEtemJZaHAyUWMiLCJjOnlvcm1lZGlhcy1xbkJXaFF5UyIsImM6c2Fub21hIiwiYzpyYWR2ZXJ0aXMtU0pwYTI1SDgiLCJjOnF3ZXJ0aXplLXpkbmdFMmh4IiwiYzp2ZG9waWEiLCJjOnJldmxpZnRlci1jUnBNbnA1eCIsImM6cmVzZWFyY2gtbm93IiwiYzp3aGVuZXZlcm0tOFZZaHdiMlAiLCJjOmFkbW90aW9uIiwiYzp3b29iaSIsImM6c2hvcHN0eWxlLWZXSksyTGlQIiwiYzp0aGlyZHByZXNlLVNzS3dtSFZLIiwiYzpiMmJtZWRpYS1wUVRGZ3lXayIsImM6cHVyY2giLCJjOmxpZmVzdHJlZXQtbWVkaWEiLCJjOnN5bmMtbjc0WFFwcmciLCJjOmludG93b3dpbi1xYXp0NXRHaSIsImM6ZGlkb21pIiwiYzpyYWRpdW1vbmUiLCJjOmFkb3Rtb2IiLCJjOmFiLXRhc3R5IiwiYzpncmFwZXNob3QiLCJjOmFkbW9iIiwiYzphZGFnaW8iLCJjOmxiY2ZyYW5jZSJdfSwicHVycG9zZXMiOnsiZGlzYWJsZWQiOlsicGVyc29ubmFsaXNhdGlvbmNvbnRlbnUiLCJwZXJzb25uYWxpc2F0aW9ubWFya2V0aW5nIiwicHJpeCIsIm1lc3VyZWF1ZGllbmNlIiwiZXhwZXJpZW5jZXV0aWxpc2F0ZXVyIl19LCJ2ZW5kb3JzX2xpIjp7ImRpc2FibGVkIjpbImdvb2dsZSJdfSwidmVyc2lvbiI6MiwiYWMiOiJBQUFBLkFBQUEifQ==; euconsent-v2=CPMNl-kPMNl-kAHABBENBqCgAAAAAAAAAAAAAAAAAABigAMAAQQXGAAYAAgguQAAwABBBcAA.YAAAAAAAAAAA; include_in_experiment=false; utag_main=v_id:017bbff84d93000a6bf1d53c0d1703079001907100838$_sn:5$_ss:0$_st:1632161082370$_pn:2%3Bexp-session$ses_id:1632159280145%3Bexp-session; ry_ry-l3b0nco_so_realytics=eyJpZCI6InJ5X0U2NjBCQzgzLTIwQkMtNDI0RS04NjBGLUQzNjE1Rjc1QTA4OCIsImNpZCI6bnVsbCwib3JpZ2luIjpmYWxzZSwicmVmIjpudWxsLCJjb250IjpudWxsLCJucyI6ZmFsc2V9',
+                    }
+                })
             .then(function (response) {
-                resolve(response.data)
-            }).catch(function (error) {
-            console.error('getFreshDatadomeCookie error: ', error)
-            throw error
-        })
-    })
+                let freshDatadomeCookie = ''
+
+                freshDatadomeCookie = response.data.cookie.match('datadome=(.{106}); Max-Age')[1]
+
+                resolve(freshDatadomeCookie)
+            })
+            .catch(function (e) {
+                if (e.response) {
+                    console.log('getFreshDatadomeCookie error HTTP STATUS: ', e.response.status)
+                }
+                throw e
+            })
+    )
 }
 
 function installRequest(stateId, freshDatadomeCookie) {
@@ -64,7 +85,7 @@ function installRequest(stateId, freshDatadomeCookie) {
                 {
                     headers: {
                         'authority': 'auth.leboncoin.fr',
-                        'content-length': 0,
+                        'content-length': '0',
                         "sec-ch-ua": '"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"',
                         'sec-ch-ua-mobile': '?0',
                         'user-agent': randomUseragent.getRandom(function (ua) {
@@ -204,7 +225,7 @@ function apiAuthorizeRequest(stateId, cookieSecureLogin, cookieSecureLoginLax, c
                 resolve(JSON.parse(htmlJsElement.text).query.code)
             })
             .catch(function (error) {
-                console.log('apiAuthorizeRequest error: ')
+                console.log('apiAuthorizeRequest error: ', error)
             })
     )
 }
