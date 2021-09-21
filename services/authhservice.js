@@ -16,13 +16,13 @@ const { JSDOM } = jsdom
 async function main(username, password) {
 
     const stateId = await uuidv4()
-    const freshDatadomeCookie = (await getFreshDatadomeCookie())
+    const freshDatadomeCookie = 'KY~cTUHC.~2DLej5xQRNSmVqQvz4.vHt1wVyvLOOs~8lb0lbc3A~NkRnR1G~.EetqlRkREDIWu0-Uus~3~zGq7hLnrcngqcJ4HRNfl8aY3'//(await getFreshDatadomeCookie())
     let {cookieSecureInstall, cookieDatadome} = await installRequest(stateId, await freshDatadomeCookie)
     let {cookieSecureLogin, cookieSecureLoginLax, cookieDatadome2} = await loginRequest(username, password, stateId, cookieSecureInstall, cookieDatadome)
     const temporaryToken = await apiAuthorizeRequest(stateId, cookieSecureLogin, cookieSecureLoginLax, cookieSecureInstall, cookieDatadome2)
 
     const {token, cookieDatadome3} = await tokenRequest(stateId, temporaryToken)
-    const {accountId, cookieDatadome4, cookies} = await personalDataRequest(cookieSecureInstall, cookieDatadome2, token)
+    const {accountId, cookieDatadome4, cookies} = await personalDataRequest(cookieSecureInstall, cookieDatadome3, token)
 
     return Promise.all([
         token,
