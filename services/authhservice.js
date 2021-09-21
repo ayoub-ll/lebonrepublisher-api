@@ -16,7 +16,7 @@ const { JSDOM } = jsdom
 async function main(username, password) {
 
     const stateId = await uuidv4()
-    const freshDatadomeCookie = 'KY~cTUHC.~2DLej5xQRNSmVqQvz4.vHt1wVyvLOOs~8lb0lbc3A~NkRnR1G~.EetqlRkREDIWu0-Uus~3~zGq7hLnrcngqcJ4HRNfl8aY3'//(await getFreshDatadomeCookie())
+    const freshDatadomeCookie = '8bgWtq8o89~C6fMil-JbXOtkFsC41gF2WA.HrFXuXNQKQucIArHi2V.XR2LJcyzWjheX~9WzRFX7BKu.HhJLM8zLoSQcgd75iXoD6fSCMh'//(await getFreshDatadomeCookie())
     let {cookieSecureInstall, cookieDatadome} = await installRequest(stateId, await freshDatadomeCookie)
     let {cookieSecureLogin, cookieSecureLoginLax, cookieDatadome2} = await loginRequest(username, password, stateId, cookieSecureInstall, cookieDatadome)
     const temporaryToken = await apiAuthorizeRequest(stateId, cookieSecureLogin, cookieSecureLoginLax, cookieSecureInstall, cookieDatadome2)
