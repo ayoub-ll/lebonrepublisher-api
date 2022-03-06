@@ -15,15 +15,34 @@ const { JSDOM } = jsdom
 
 async function main(username, password) {
 
+    /*
     const stateId = await uuidv4()
-    const freshDatadomeCookie = '8bgWtq8o89~C6fMil-JbXOtkFsC41gF2WA.HrFXuXNQKQucIArHi2V.XR2LJcyzWjheX~9WzRFX7BKu.HhJLM8zLoSQcgd75iXoD6fSCMh'//(await getFreshDatadomeCookie())
+    const freshDatadomeCookie = await getFreshDatadomeCookie()
     let {cookieSecureInstall, cookieDatadome} = await installRequest(stateId, await freshDatadomeCookie)
     let {cookieSecureLogin, cookieSecureLoginLax, cookieDatadome2} = await loginRequest(username, password, stateId, cookieSecureInstall, cookieDatadome)
     const temporaryToken = await apiAuthorizeRequest(stateId, cookieSecureLogin, cookieSecureLoginLax, cookieSecureInstall, cookieDatadome2)
 
     const {token, cookieDatadome3} = await tokenRequest(stateId, temporaryToken)
     const {accountId, cookieDatadome4, cookies} = await personalDataRequest(cookieSecureInstall, cookieDatadome3, token)
+*/
 
+    const stateId = await uuidv4()
+    const freshDatadomeCookie = await getFreshDatadomeCookie()
+
+    let {cookieSecureLogin, cookieSecureLoginLax, cookieDatadome2} = await loginRequest(username, password, stateId, freshDatadomeCookie)
+
+    const freshDatadomeCookie2 = await getFreshDatadomeCookie()
+
+    const temporaryToken = await apiAuthorizeRequest(stateId, freshDatadomeCookie2, cookieSecureLogin, cookieSecureLoginLax)
+
+    console.log('previsionalToken: ', temporaryToken)
+//    console.log(await personalDataRequest(freshDatadomeCookie2, token))
+
+    /*
+    const temporaryToken = await apiAuthorizeRequest(stateId, freshDatadomeCookie)
+    const {token, cookieDatadome3} = await tokenRequest(stateId, temporaryToken)
+    const {accountId, cookieDatadome4, cookies} = await personalDataRequest(cookieSecureInstall, cookieDatadome3, token)
+*/
     return Promise.all([
         token,
         accountId,
@@ -41,33 +60,17 @@ async function main(username, password) {
 function getFreshDatadomeCookie() {
     return new Promise((resolve) =>
         axios
-            .post('https://dd.leboncoin.fr/js/', 'jsData={"ttst":96.89999997615814,"ifov":false,"wdifts":false,"wdifrm":false,"wdif":false,"br_h":215,"br_w":1280,"br_oh":775,"br_ow":1280,"nddc":1,"rs_h":800,"rs_w":1280,"rs_cd":24,"phe":false,"nm":false,"jsf":false,"ua":"Mozilla/5.0+(Macintosh;+Intel+Mac+OS+X+10_15_7)+AppleWebKit/537.36+(KHTML,+like+Gecko)+Chrome/92.0.4515.159+Safari/537.36","lg":"en-GB","pr":2,"hc":4,"ars_h":775,"ars_w":1280,"tz":-120,"str_ss":true,"str_ls":true,"str_idb":true,"str_odb":true,"plgod":false,"plg":3,"plgne":true,"plgre":true,"plgof":false,"plggt":false,"pltod":false,"hcovdr":false,"plovdr":false,"ftsovdr":false,"lb":false,"eva":33,"lo":false,"ts_mtp":0,"ts_tec":false,"ts_tsa":false,"vnd":"Google+Inc.","bid":"NA","mmt":"application/pdf,application/x-google-chrome-pdf,application/x-nacl,application/x-pnacl","plu":"Chrome+PDF+Plugin,Chrome+PDF+Viewer,Native+Client","hdn":false,"awe":false,"geb":false,"dat":false,"med":"defined","aco":"probably","acots":false,"acmp":"probably","acmpts":true,"acw":"probably","acwts":false,"acma":"maybe","acmats":false,"acaa":"probably","acaats":true,"ac3":"","ac3ts":false,"acf":"probably","acfts":false,"acmp4":"maybe","acmp4ts":false,"acmp3":"probably","acmp3ts":false,"acwm":"maybe","acwmts":false,"ocpt":false,"vco":"probably","vcots":false,"vch":"probably","vchts":true,"vcw":"probably","vcwts":true,"vc3":"maybe","vc3ts":false,"vcmp":"","vcmpts":false,"vcq":"","vcqts":false,"vc1":"probably","vc1ts":false,"dvm":8,"sqt":false,"so":"landscape-primary","wbd":false,"wbdm":true,"wdw":true,"cokys":"bG9hZFRpbWVzY3NpYXBwcnVudGltZQ==L=","ecpc":false,"lgs":true,"lgsod":false,"bcda":true,"idn":true,"capi":false,"svde":false,"vpbq":true,"xr":true,"bgav":true,"rri":true,"idfr":true,"ancs":true,"inlc":true,"cgca":true,"inlf":true,"tecd":true,"sbct":true,"aflt":true,"rgp":true,"bint":true,"spwn":false,"emt":false,"bfr":false,"dbov":false,"glvd":"Intel+Inc.","glrd":"Intel(R)+Iris(TM)+Graphics+6100","tagpu":28.200000017881393,"prm":true,"tzp":"Europe/Paris","cvs":true,"usb":"defined","dcok":".leboncoin.fr","ewsi":false}&events=[{"source":{"x":0,"y":2},"message":"scroll","date":1632159278387,"id":2},{"source":{"x":0,"y":6},"message":"scroll","date":1632159279084,"id":2},{"source":{"x":0,"y":45},"message":"scroll","date":1632159279203,"id":2},{"source":{"x":0,"y":-30},"message":"scroll","date":1632159281107,"id":2},{"source":{"x":255,"y":139},"message":"mouse+move","date":1632159282127,"id":0},{"source":{"x":0,"y":-23},"message":"scroll","date":1632159282270,"id":2},{"source":{"x":254,"y":141},"message":"mouse+move","date":1632159283501,"id":0},{"source":{"x":129,"y":197},"message":"mouse+move","date":1632159285405,"id":0},{"source":{"x":553,"y":30},"message":"mouse+move","date":1632159285505,"id":0},{"source":{"x":594,"y":12},"message":"mouse+move","date":1632159285669,"id":0},{"source":{"x":321,"y":4},"message":"mouse+move","date":1632159286124,"id":0},{"source":{"x":115,"y":157},"message":"mouse+move","date":1632159286230,"id":0},{"source":{"x":42,"y":214},"message":"mouse+move","date":1632159287320,"id":0},{"source":{"x":116,"y":8},"message":"mouse+move","date":1632159287500,"id":0}]&eventCounters={"mouse+move":9,"mouse+click":0,"scroll":5,"touch+start":0,"touch+end":0,"touch+move":0,"key+press":0,"key+down":0,"key+up":0}&jsType=le&cid=Mw0LvlAC6hx3TaNUxaLv3v6NWNMgdqHCPw6HOAutJXn18cFe1B8xHecAu.ki1tyDadoQEJMu_~u7IW1XWLKhtO82OA5S9Vlatalcd5AjKC&ddk=05B30BD9055986BD2EE8F5A199D973&Referer=https%3A%2F%2Fwww.leboncoin.fr%2F&request=%2F&responsePage=origin&ddv=4.1.64',
-                {
-                    headers: {
-                        'authority': 'dd.leboncoin.fr',
-                        'content-length': '0',
-                        "sec-ch-ua": '"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"',
-                        'sec-ch-ua-mobile': '?0',
-                        'user-agent': randomUseragent.getRandom(function (ua) {
-                            return parseFloat(ua.browserVersion) >= 20;
-                        }),
-                        'content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
-                        'accept': '*/*',
-                        'origin': 'https://www.leboncoin.fr',
-                        'sec-fetch-site': 'same-site',
-                        'sec-fetch-mode': 'no-cors',
-                        'sec-fetch-dest': 'empty',
-                        'referer': 'https://www.leboncoin.fr/',
-                        'accept-language': 'en-GB,en;q=0.9',
-                        'cookie': '__Secure-InstanceId=f6955f3e-3fbd-44ec-b69e-f91590259d62; ry_ry-l3b0nco_realytics=eyJpZCI6InJ5X0U2NjBCQzgzLTIwQkMtNDI0RS04NjBGLUQzNjE1Rjc1QTA4OCIsImNpZCI6bnVsbCwiZXhwIjoxNjYyNTQ5MzI5OTE4LCJjcyI6bnVsbH0%3D; didomi_token=eyJ1c2VyX2lkIjoiMTdiYmZmODQtZGZjYy02NzFhLTllODYtYzk3MjYyOGVhZmNiIiwiY3JlYXRlZCI6IjIwMjEtMDktMDhUMTE6NDg6NTguMDI2WiIsInVwZGF0ZWQiOiIyMDIxLTA5LTA4VDExOjQ4OjU4LjAyNloiLCJ2ZW5kb3JzIjp7ImRpc2FibGVkIjpbImFtYXpvbiIsInNhbGVzZm9yY2UiLCJnb29nbGUiLCJjOm5leHQtcGVyZm9ybWFuY2UiLCJjOmNvbGxlY3RpdmUtaGhTWXRSVm4iLCJjOnJvY2t5b3UiLCJjOnB1Ym9jZWFuLWI2QkpNdHNlIiwiYzpydGFyZ2V0LUdlZk1WeWlDIiwiYzpzY2hpYnN0ZWQtTVFQWGFxeWgiLCJjOmdyZWVuaG91c2UtUUtiR0JrczQiLCJjOnJlYWx6ZWl0Zy1iNktDa3h5ViIsImM6dmlkZW8tbWVkaWEtZ3JvdXAiLCJjOnN3aXRjaC1jb25jZXB0cyIsImM6bHVjaWRob2xkLXlmdGJXVGY3IiwiYzpsZW1vbWVkaWEtemJZaHAyUWMiLCJjOnlvcm1lZGlhcy1xbkJXaFF5UyIsImM6c2Fub21hIiwiYzpyYWR2ZXJ0aXMtU0pwYTI1SDgiLCJjOnF3ZXJ0aXplLXpkbmdFMmh4IiwiYzp2ZG9waWEiLCJjOnJldmxpZnRlci1jUnBNbnA1eCIsImM6cmVzZWFyY2gtbm93IiwiYzp3aGVuZXZlcm0tOFZZaHdiMlAiLCJjOmFkbW90aW9uIiwiYzp3b29iaSIsImM6c2hvcHN0eWxlLWZXSksyTGlQIiwiYzp0aGlyZHByZXNlLVNzS3dtSFZLIiwiYzpiMmJtZWRpYS1wUVRGZ3lXayIsImM6cHVyY2giLCJjOmxpZmVzdHJlZXQtbWVkaWEiLCJjOnN5bmMtbjc0WFFwcmciLCJjOmludG93b3dpbi1xYXp0NXRHaSIsImM6ZGlkb21pIiwiYzpyYWRpdW1vbmUiLCJjOmFkb3Rtb2IiLCJjOmFiLXRhc3R5IiwiYzpncmFwZXNob3QiLCJjOmFkbW9iIiwiYzphZGFnaW8iLCJjOmxiY2ZyYW5jZSJdfSwicHVycG9zZXMiOnsiZGlzYWJsZWQiOlsicGVyc29ubmFsaXNhdGlvbmNvbnRlbnUiLCJwZXJzb25uYWxpc2F0aW9ubWFya2V0aW5nIiwicHJpeCIsIm1lc3VyZWF1ZGllbmNlIiwiZXhwZXJpZW5jZXV0aWxpc2F0ZXVyIl19LCJ2ZW5kb3JzX2xpIjp7ImRpc2FibGVkIjpbImdvb2dsZSJdfSwidmVyc2lvbiI6MiwiYWMiOiJBQUFBLkFBQUEifQ==; euconsent-v2=CPMNl-kPMNl-kAHABBENBqCgAAAAAAAAAAAAAAAAAABigAMAAQQXGAAYAAgguQAAwABBBcAA.YAAAAAAAAAAA; include_in_experiment=false; utag_main=v_id:017bbff84d93000a6bf1d53c0d1703079001907100838$_sn:5$_ss:0$_st:1632161082370$_pn:2%3Bexp-session$ses_id:1632159280145%3Bexp-session; ry_ry-l3b0nco_so_realytics=eyJpZCI6InJ5X0U2NjBCQzgzLTIwQkMtNDI0RS04NjBGLUQzNjE1Rjc1QTA4OCIsImNpZCI6bnVsbCwib3JpZ2luIjpmYWxzZSwicmVmIjpudWxsLCJjb250IjpudWxsLCJucyI6ZmFsc2V9',
-                    }
-                })
+            .get('http://f51340b.online-server.cloud/cookie')
             .then(function (response) {
+                console.log("datadome cookie from Paul: ", response.data.datadome)
+                resolve(response.data.datadome)
+                /*
                 let freshDatadomeCookie = ''
 
                 freshDatadomeCookie = response.data.cookie.match('datadome=(.{106}); Max-Age')[1]
 
                 resolve(freshDatadomeCookie)
+                */
             })
             .catch(function (e) {
                 if (e.response) {
@@ -132,7 +135,7 @@ function installRequest(stateId, freshDatadomeCookie) {
     )
 }
 
-function loginRequest(username, password, stateId, cookieSecureInstall, cookieDatadome) {
+function loginRequest(username, password, stateId, cookieDatadome) {
     return new Promise((resolve) =>
         axios
             .post('https://auth.leboncoin.fr/api/authenticator/v1/users/login', {
@@ -158,13 +161,15 @@ function loginRequest(username, password, stateId, cookieSecureInstall, cookieDa
                         'sec-fetch-dest': 'empty',
                         'referer': 'https://auth.leboncoin.fr/login/?client_id=lbc-front-web&error=login_required&error_debug=session+token+is+not+found+or+expired&error_description=you+should+login+first%2C+the+__Secure-login+cookie+is+not+found.&error_hint=you+should+login+first%2C+you+can+follow+this+url+https%3A%2F%2Fauth.leboncoin.fr%2Flogin%2F%3Fclient_id%3Dlbc-front-web%26from_to%3Dhttps%253A%252F%252Fwww.leboncoin.fr%252F%26redirect_uri%3Dhttps%253A%252F%252Fauth.leboncoin.fr%252Fapi%252Fauthorizer%252Fv2%252Fauthorize%253Fclient_id%253Dlbc-front-web%2526redirect_uri%253Dhttps%25253A%25252F%25252Fwww.leboncoin.fr%25252Fnextoauth2callback%2526response_type%253Dcode%2526scope%253D%25252A%252Boffline%2526state%253D' + stateId + '+to+retrieve+__Secure-login+cookie&from_to=https%3A%2F%2Fwww.leboncoin.fr%2F&redirect_uri=https%3A%2F%2Fauth.leboncoin.fr%2Fapi%2Fauthorizer%2Fv2%2Fauthorize%3Fclient_id%3Dlbc-front-web%26redirect_uri%3Dhttps%253A%252F%252Fwww.leboncoin.fr%252Fnextoauth2callback%26response_type%3Dcode%26scope%3D%252A%2Boffline%26state%3D' + stateId,
                         'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8,fr;q=0.7',
-                        'cookie': 'xtvrn=$562498$; xtant562498=1; ry_ry-l3b0nco_realytics=eyJpZCI6InJ5Xzc0MTRDN0NGLUQ3NUMtNDdFRi1COTI2LTVBQTVGRjJDMjc3OCIsImNpZCI6bnVsbCwiZXhwIjoxNjQwNzk4NjkxMTIxLCJjcyI6bnVsbH0%3D; __Secure-Install=' + cookieSecureInstall + '; _pulse2data=03acba8b-5ed7-4a57-9473-cf06787c97ee%2Cv%2C12341713%2C1613298323977%2CeyJpc3N1ZWRBdCI6IjIwMjAtMTItMjlUMTc6MjQ6NTFaIiwiZW5jIjoiQTEyOENCQy1IUzI1NiIsImFsZyI6ImRpciIsImtpZCI6IjIifQ..euv7qmUTx_kIy3wJaCGZ2A.cCB87vFyr0Ls2scr6VqmfFoia76_yscB9t3fsuQ9Lgc9QzxKKtNLYMAdQjOA6Y0Umk64UW5uiy5roynBi5iVCUp-AsQtGmB855uU8VPkIobWGKzkvZ90KY8tjkwItrhG-NicpBLv3mLCgqL-_MZk0xFd2GQzxP6dGQvZPm9eqPL-EXdKAjF0g0yxo8Ayw0iNUv-njsOsJ4-bzbM5GnycsTuH7aeVoA2c2e_ysEI5VnA.yNGKjpXyeCDFfURmOZH2tg%2C%2C0%2Ctrue%2C%2CeyJraWQiOiIyIiwiYWxnIjoiSFMyNTYifQ..LYRxLFiJVqRLo22_HVaUbtlKtvLgstsNaWSLo04i2xU; xtan562498=part-12341713; __Secure-InstanceId=aa6b2344-f341-415d-8dc1-b8eb73897970; didomi_token=eyJ1c2VyX2lkIjoiMTc2YWY4N2UtZTAyYS02MjExLTkwOTMtZWZlZWM1MzYxNmZlIiwiY3JlYXRlZCI6IjIwMjEtMDQtMTFUMTI6MTY6NDMuMjM5WiIsInVwZGF0ZWQiOiIyMDIxLTA0LTExVDEyOjE2OjQzLjIzOVoiLCJ2ZXJzaW9uIjoyLCJ2ZW5kb3JzIjp7ImVuYWJsZWQiOlsiYW1hem9uIiwic2FsZXNmb3JjZSIsImdvb2dsZSIsImM6bmV4dC1wZXJmb3JtYW5jZSIsImM6Y29sbGVjdGl2ZS1oaFNZdFJWbiIsImM6cm9ja3lvdSIsImM6cHVib2NlYW4tYjZCSk10c2UiLCJjOnJ0YXJnZXQtR2VmTVZ5aUMiLCJjOnNjaGlic3RlZC1NUVBYYXF5aCIsImM6Z3JlZW5ob3VzZS1RS2JHQmtzNCIsImM6cmVhbHplaXRnLWI2S0NreHlWIiwiYzp2aWRlby1tZWRpYS1ncm91cCIsImM6c3dpdGNoLWNvbmNlcHRzIiwiYzpsdWNpZGhvbGQteWZ0YldUZjciLCJjOmxlbW9tZWRpYS16YllocDJRYyIsImM6eW9ybWVkaWFzLXFuQldoUXlTIiwiYzpzYW5vbWEiLCJjOnJhZHZlcnRpcy1TSnBhMjVIOCIsImM6cXdlcnRpemUtemRuZ0UyaHgiLCJjOnZkb3BpYSIsImM6cmV2bGlmdGVyLWNScE1ucDV4IiwiYzpyZXNlYXJjaC1ub3ciLCJjOndoZW5ldmVybS04Vllod2IyUCIsImM6YWRtb3Rpb24iLCJjOndvb2JpIiwiYzpzaG9wc3R5bGUtZldKSzJMaVAiLCJjOnRoaXJkcHJlc2UtU3NLd21IVksiLCJjOmIyYm1lZGlhLXBRVEZneVdrIiwiYzpwdXJjaCIsImM6bGlmZXN0cmVldC1tZWRpYSIsImM6c3luYy1uNzRYUXByZyIsImM6aW50b3dvd2luLXFhenQ1dEdpIiwiYzpkaWRvbWkiLCJjOnJhZGl1bW9uZSIsImM6YWRvdG1vYiIsImM6YWItdGFzdHkiLCJjOmdyYXBlc2hvdCIsImM6YWRtb2IiLCJjOmFkYWdpbyIsImM6bGJjZnJhbmNlIl19LCJ2ZW5kb3JzX2xpIjp7ImVuYWJsZWQiOlsiZ29vZ2xlIl19LCJhYyI6IkRFMkF3QUVJQWZvQmhRRHhBSG1BU1NBa3NDSklIRUFPckFpREJGS0NLZ0VtNEp2QVRrQXRyQmJlQzR3RnlRTGxnWURBd2lCaWFBQUEuREUyQXdBRUlBZm9CaFFEeEFIbUFTU0Frc0NKSUhFQU9yQWlEQkZLQ0tnRW00SnZBVGtBdHJCYmVDNHdGeVFMbGdZREF3aUJpYUFBQSIsInB1cnBvc2VzIjp7ImVuYWJsZWQiOlsicGVyc29ubmFsaXNhdGlvbmNvbnRlbnUiLCJwZXJzb25uYWxpc2F0aW9ubWFya2V0aW5nIiwicHJpeCIsIm1lc3VyZWF1ZGllbmNlIiwiZXhwZXJpZW5jZXV0aWxpc2F0ZXVyIl19fQ==; euconsent-v2=CPEfRawPEfRawAHABBENBUCgAP_AAHLAAAAAG7tf_X_fb2vj-_599_t0eY1f9_63v6wzjheNs-8NyZ_X_L4Xo2M6vB36pq4KmR4Eu3LBAQdlHOHcTQmQ4IkVqTPsbk2Mr7NKJ7LEilMbe2dYGH9_n8XTuZKY70_8___z_3-__v__7rbgCAAAAAAAIAgc6ASYal8AAmJY4Ek0aVQogQhWEhUAoAKKEYWiawgJHBTsrgI9QQIAEJqAjAiBBiCjFgEAAgEASERACAHggEQBEAgABACpAQgAIkAAWAFgYBAAKAaFABFAEIEhBEYFRymBARItFBPIGAAQAAAAAAAAAAAAAAAgBigXIABwAEgANAAeABSADAAMgAigBSAFQALAAYgA1gB8AH8AQgBDACYAFoALkAXgBfgDCAMQAZgA2gB4AD1AH8AggBCwCNAI4ASYAlQBMwCfAKAAUgAqABWgCygFuAXEAygDLgGaAZ0A0wDVAGwANoAcEA4gDkAHMAOyAd4B4QDzAPSAfIB9AD8AH_AQUBBoCEgIUARAAjABHICSgJMASuAloCXAEwAJvATwBPgCggFFAKQAUsAqIBV4CugK-AWaAtAC0gFzgLsAu4BeQC-AF-AMCAYQAxUBnAGdANAAacA1oBtADeAHCgOaA5wB1QDsgHbAO-AeIA9YB7YD9AP2Af8BAgCBwEGAISAQuAh8BEoCLAEcQI6AjsBHoCQQEhgJFASiAlSBLwEvwJhAmIBM0CbAJtATuAn8BQoCiAFFAKMgUcBSACmYFNgU4Ap8BUQCpIFWgVeArMBW0CxALFgWOBZMCywLMAWcAtEBasC1wLYAW4AuCBcYFyQLmAugBdcC7QLugXmBesC9wL7AYEAwqBhoGHwMUAxUBjUDHgMgAZEAyUBlcDMAMxAZpAzgDOYGeAZ9A0EDQgGigNPga0BrcDXQNeAbAA2QBtQDbQG4ANygboBusDfQN-gcIBw0DiQOKAccA5IBykDmAOZAc8A6eB1oHYAO4Ad2A72B4QHhgPQgemB6gD1hgLUAA4ACQAHgAUgAwADIAIoAUgBUACwAGIANQAfwBCAEMAJgAUwAuABegDCAMQAZgA2wB_AIKARoBHgCTAEqAJmAT4BQACkAFQAK0AWUAtwC4AGPAMoAywBnQDTANUAbQA4IBxAHIAOYAdkA7wDwgHmAekA-gD8AH_AQkBCgCIAESAIwARwAkoBKwCWgEwAJvATwBPgCggFFAKQAUsAqIBVwCtwFdAV8AsQBZgC5wF2AXcAvIBfAC_AGEAMVAZwBnQDQQGmAacA1oBtADeAHCgOaA5wB1QDsgHbAO-AeIA9YB7QD5AH7AQIAgcBCQCFwEPgIlARYAjiBHQEdgI9ASCAkMBIoCTgEogJUgS8BL8CYQJiATNAmwCbQE4gJ3AT-AoUBRACigFGQKOApABTMCmwKcgU8BT4CogFSQKtAq8BWYCtgFiQLHAsmBZYFmALOAWiAtWBa4FsQLbAtwBcAC44FzAXQAuuBdoF3QLyAvSBe4F8AL7AYEAwoBhoDD4GKAYqAxoBjwDIAGRAMlAZWAzEBmkDOAM5gZ4Bn0DQQNCAaKA0-BrQGugNgAbJA2oDbAG4QN0A3WBvoG_QOEA4YBxIDjgHJAOUgcwBzIDngHTwOtA7AB3ADuwHewPCA8MB6ED0wPUAesQBwAABgAOABIACwAGgAPAAoABaADIANAAdABEACQAFQALAAXAAxAB_AEEAQ4AmACaAFMAKoAVwAuQBeAF-AMIAxABmADQAG0AN4AeoA_gECAIuARoBHgCRAEmAJWAT4BQACkAFQAKoAVsAsQCygFuAXIAvgBhADEgGUAZcAzQDOgGmAaoA2ABtQDfAOAAcQA5IBzAHOAOyAd4B4QDzAPQAe0A-QD8AH-AQWAhICFAEQAIpARgBGQCOAElAJSASsAlwBMICbgJwATwAnwBQQChgFFgKQApIBSwCngFRAKuAVkArcBXQFfALEAWaAtAC0gFzgLsAu4BeQC-AF-AMAAYQAxQBmYDOAM6AaCA0wDTgGrANaAbQA3gBwgDmwHUAdUA64B2QDtgHfAPEAeiA9QD1gHtgPyA_gCAAECAIHAQnAhcCGAEPgIhgRKBEwCLIEcAR3Aj0CPoEggSKAk4BKICVAErgJagS8BL8CYQJiATMAmmBNgE2gJxATuAn-BQgFCgKIgUYBSECkgKTgUyBTkCngKfAVEAqSBVoFXgKzAVtAr4Cv4FiAWLAscCyYFlgWYAs4BaIC0wFqwLXAtwBbwC4IFxgXJAucC6IF1gXcAvIBekC9gL9gYCBgYDCoGGAYeAxKBigGKgMaAY8AyABkQDJQGTgMrAZaAzEBmkDNwM_gaCBoUDRANFAaPA0kDSwGngNTgaqBq0DWgNdga-BsIDZIG1gbYA24BuEDdAN1gbyBvUDfQN-gcABwMDhAOGAcSA4wBxwDkoHMAczA54DnwHRwOlA6eB1IHVQOsA7AB2oDuAHdwO9A74B4MDwwPEAePA8kDyoHnAejA9MD1AHrAAAA.f_gADlgAAAAA; srt=eyJhbGciOiJSUzI1NiIsImtpZCI6IjA2MGMwYTgyLTk0YzktNTQ0Ny1iYjFjLWFkMGI1YzhkNGU5NSIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiJsYmMtZnJvbnQtd2ViIiwiaWF0IjoxNjE4MTk1MjgzLCJpZCI6IjExMGEzNTllLWM2MTAtNDM1Ni05OTBlLWIxZGQwZmRhZjhiNyIsImp0aSI6ImZkNGEzZGIyLTFiMTYtNGFlZS1hN2I0LTFiNTc5NGIzNDcxMSIsInJlcXVlc3RfaWQiOiIyMTc0ZTRkMi03YTBiLTRmOTAtYTAyMi0xNDYzOTdiNDZjYTUiLCJzZXNzaW9uX2lkIjoiZDU5YzEzMjgtYWJiYi00MTIxLWIzYmItYWRhMDE2MzU5OTQ3Iiwic3ViIjoibGJjO2QxNmMwNzQxLWFlYWMtNDFkMi1iMTQ0LTA0M2VhNWVjOWFlYTsxMjM0MTcxMyJ9.i0XRF6ezkkrbjnvk-rtP3wKVcs33tPDVQ-BStxU9q5YHlP8NHw-fcJ9W49QRO4yACLL9J3COhtIzlAY6fa-vVgZdu-tMeI3ubZE6DiM1x8efCjfIMZm5GXelgyAcAibZZpUB3pZhTsV3a6WfVlu1mHbAY_K7bNcc6iqgdXDVv9bgJFjgZ1f84-1iIzCgMxu-kXZn10MaHkQj8GqcYcMxYLZoRAZUhP8j5hBIW7B0x-1gVH6MqfbIB8I1SXBWxO19tVJIMvKFKoR34--phQCzFtXr4r8rs_uI9bY3TTeQIZoiZmsl2FqpAawtvGyQuJ39zC-1DgsVkeG9Fsg3q3wZn-NhuUxL2IlI98guqORB7AJLQV9aUeh9CLIH-bmKfnR5CuHFULyE3BsloI4AH8r5027oFoc-OtWnnVU8dlZnOfITepeqRVKHw5uTUq-XuxTCpllkJFxLVH4UCrVrKIpkHv7O1EyuhmtahW6BDeSnpe6koUqWGfzaI5vJcFxS81uwBbTpvFUL32ZBj2WrsQo1BJh7CWliggXrBONeE2eOvUTdEazabnhU6cVJ05ihx-OOVx_ql9mcGMiUFY2GFbalccQkRRCDLi2-zj5vLJ_uJBz9tbu91dyK7em7gBwjXMxhtGTq0rgeQ-BXlLUgOB6ENQYUV-nnpO_sPncSy8a3tos; _gcl_au=1.1.1746181226.1630408170; include_in_experiment=true; utag_main=v_id:0176af87ed0e001fee6708b8dbaa03077001906f00838$_sn:11$_ss:0$_st:1630755838591$_pn:2%3Bexp-session$ses_id:1630754037660%3Bexp-session; ry_ry-l3b0nco_so_realytics=eyJpZCI6InJ5Xzc0MTRDN0NGLUQ3NUMtNDdFRi1COTI2LTVBQTVGRjJDMjc3OCIsImNpZCI6bnVsbCwib3JpZ2luIjpmYWxzZSwicmVmIjpudWxsLCJjb250IjpudWxsLCJucyI6ZmFsc2V9; cto_bundle=9_Azt19rVzRIV0JmVWpic2FqWWQ0aVRFR0ZIdWxtZ0VqNG9XMklZS3FtJTJCUGtNZjhPOW5zQXllMlVRTEc3Y3ZoVWRpcGVRWlBLMFNHOWJyUExXdzFPZFZCczQlMkZxT1JSV0hJWnFGaE8lMkJpa1I0dU9OcDI1WE80RUNDYXlRc0klMkY5REtwUE4yTFlvRnNQTGp2TWdnZkE0UG5zR1hMaFVISzB0UWwwZmhBNnF4M1Z6cnJvdW9YZGk5TjJFdXAlMkJ4VnpCb3dkNTJO; datadome=' + cookieDatadome,
+                        'cookie': '__Secure-InstanceId=e9d0652a-2815-4f24-af08-d41842a9f7f0; ry_ry-l3b0nco_realytics=eyJpZCI6InJ5XzVCOUI1NkMzLTQxQTEtNDMzNS1CMTlGLTg3QTMyN0FFQUEzNSIsImNpZCI6bnVsbCwiZXhwIjoxNjc3NjkzMTA3MDAzLCJjcyI6bnVsbH0%3D; didomi_token=eyJ1c2VyX2lkIjoiMTdmNDY5YzAtNTIzMy02NzU1LWFmMDYtMzIxMWU3ZWM5ZmU4IiwiY3JlYXRlZCI6IjIwMjItMDMtMDFUMTc6NTE6NTMuMDY5WiIsInVwZGF0ZWQiOiIyMDIyLTAzLTAxVDE3OjUxOjUzLjA2OVoiLCJ2ZW5kb3JzIjp7ImRpc2FibGVkIjpbImdvb2dsZSIsImM6cm9ja3lvdSIsImM6cHVib2NlYW4tYjZCSk10c2UiLCJjOnJ0YXJnZXQtR2VmTVZ5aUMiLCJjOnNjaGlic3RlZC1NUVBYYXF5aCIsImM6Z3JlZW5ob3VzZS1RS2JHQmtzNCIsImM6cmVhbHplaXRnLWI2S0NreHlWIiwiYzpsZW1vbWVkaWEtemJZaHAyUWMiLCJjOnlvcm1lZGlhcy1xbkJXaFF5UyIsImM6c2Fub21hIiwiYzpyYWR2ZXJ0aXMtU0pwYTI1SDgiLCJjOnF3ZXJ0aXplLXpkbmdFMmh4IiwiYzpyZXZsaWZ0ZXItY1JwTW5wNXgiLCJjOnJlc2VhcmNoLW5vdyIsImM6d2hlbmV2ZXJtLThWWWh3YjJQIiwiYzphZG1vdGlvbiIsImM6dGhpcmRwcmVzZS1Tc0t3bUhWSyIsImM6aW50b3dvd2luLXFhenQ1dEdpIiwiYzpkaWRvbWkiLCJjOmpxdWVyeSIsImM6YWItdGFzdHkiLCJjOm1vYmlmeSIsImM6bGJjZnJhbmNlIiwiYzpwb3dlcmxpbmstQTNMZURNRjQiXX0sInB1cnBvc2VzIjp7ImRpc2FibGVkIjpbImV4cGVyaWVuY2V1dGlsaXNhdGV1ciIsIm1lc3VyZWF1ZGllbmNlIiwicGVyc29ubmFsaXNhdGlvbm1hcmtldGluZyIsInBlcnNvbm5hbGlzYXRpb25jb250ZW51IiwicHJpeCJdfSwidmVuZG9yc19saSI6eyJkaXNhYmxlZCI6WyJnb29nbGUiXX0sInZlcnNpb24iOjIsImFjIjoiQUFBQS5BQUFBIn0=; euconsent-v2=CPVJdQAPVJdQAAHABBENCECgAAAAAAAAAAAAAAAAAABigAMAAQRLGAAYAAgiWQAAwABBEsAA.YAAAAAAAAAAA; include_in_experiment=false; __Secure-Install=63d0df27-b270-4d3c-ab84-32b22ecaf979; ry_ry-l3b0nco_so_realytics=eyJpZCI6InJ5XzVCOUI1NkMzLTQxQTEtNDMzNS1CMTlGLTg3QTMyN0FFQUEzNSIsImNpZCI6bnVsbCwib3JpZ2luIjp0cnVlLCJyZWYiOm51bGwsImNvbnQiOm51bGwsIm5zIjpmYWxzZX0%3D; utag_main=v_id:017f469c0416001d25e29b616ddc02078001907000838$_sn:4$_ss:0$_st:1646560693018$_pn:4%3Bexp-session$ses_id:1646558883046%3Bexp-session; datadome=' + cookieDatadome,
                     }
                 })
             .then(function (response) {
                 let cookieSecureLogin = ''
                 let cookieSecureLoginLax = ''
                 let cookieDatadome2 = ''
+
+                console.log('counter of redirections: ', response.request._redirectable._redirectCount)
 
                 response.headers['set-cookie'].forEach((cookies) => {
                     const cookiesObject =
@@ -196,11 +201,12 @@ function loginRequest(username, password, stateId, cookieSecureInstall, cookieDa
 
 }
 
-function apiAuthorizeRequest(stateId, cookieSecureLogin, cookieSecureLoginLax, cookieSecureInstall, cookieDatadome2) {
+function apiAuthorizeRequest(stateId, cookieDatadome2, cookieSecureLogin, cookieSecureLoginLax) {
     return new Promise((resolve) =>
         axios
-            .get('https://auth.leboncoin.fr/api/authorizer/v2/authorize?client_id=lbc-front-web&login_status=OK&redirect_uri=https%3A%2F%2Fwww.leboncoin.fr%2Fnextoauth2callback&response_type=code&scope=%2A+offline&state=' + stateId,
+            .get('https://auth.leboncoin.fr/api/authorizer/v2/authorize?client_id=lbc-front-web&redirect_uri=https://www.leboncoin.fr/nextoauth2callback&response_type=code&scope=*+offline&state=' + stateId,
                 {
+                    maxRedirects: 0,
                     headers: {
                         'authority': 'auth.leboncoin.fr',
                         "sec-ch-ua": '"Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"',
@@ -214,23 +220,31 @@ function apiAuthorizeRequest(stateId, cookieSecureLogin, cookieSecureLoginLax, c
                         'sec-fetch-mode': 'navigate',
                         'sec-fetch-user': '?1',
                         'sec-fetch-dest': 'document',
-                        'referer': 'https://auth.leboncoin.fr/login/?client_id=lbc-front-web&error=login_required&error_debug=session+token+is+not+found+or+expired&error_description=you+should+login+first%2C+the+__Secure-login+cookie+is+not+found.&error_hint=you+should+login+first%2C+you+can+follow+this+url+https%3A%2F%2Fauth.leboncoin.fr%2Flogin%2F%3Fclient_id%3Dlbc-front-web%26from_to%3Dhttps%253A%252F%252Fwww.leboncoin.fr%252F%26redirect_uri%3Dhttps%253A%252F%252Fauth.leboncoin.fr%252Fapi%252Fauthorizer%252Fv2%252Fauthorize%253Fclient_id%253Dlbc-front-web%2526redirect_uri%253Dhttps%25253A%25252F%25252Fwww.leboncoin.fr%25252Fnextoauth2callback%2526response_type%253Dcode%2526scope%253D%25252A%252Boffline%2526state%253D' + stateId + '+to+retrieve+__Secure-login+cookie&from_to=https%3A%2F%2Fwww.leboncoin.fr%2F&redirect_uri=https%3A%2F%2Fauth.leboncoin.fr%2Fapi%2Fauthorizer%2Fv2%2Fauthorize%3Fclient_id%3Dlbc-front-web%26redirect_uri%3Dhttps%253A%252F%252Fwww.leboncoin.fr%252Fnextoauth2callback%26response_type%3Dcode%26scope%3D%252A%2Boffline%26state%3D' + stateId,
+                        'referer': 'https://auth.leboncoin.fr/suggest-phone-number/?client_id=lbc-front-web&login_status=SUGGEST_PHONE_NUMBER&redirect_uri=https%3A%2F%2Fauth.leboncoin.fr%2Fapi%2Fauthorizer%2Fv2%2Fauthorize%3Fclient_id%3Dlbc-front-web%26redirect_uri%3Dhttps%253A%252F%252Fwww.leboncoin.fr%252Fnextoauth2callback%26response_type%3Dcode%26scope%3D%252A%2Boffline%26state%3D' + stateId,
                         'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8,fr;q=0.7',
-                        'cookie': '__Secure-InstanceId=5de486a3-4d65-4634-bb99-d067ff04d283; ry_ry-l3b0nco_realytics=eyJpZCI6InJ5XzE4MzVDMDkxLUQxQzctNEJDRC1CRDgyLTdCMEVCOUM1RTJCNCIsImNpZCI6bnVsbCwiZXhwIjoxNjYyMzMyMTUxMDI0LCJjcyI6bnVsbH0=; ry_ry-l3b0nco_so_realytics=eyJpZCI6InJ5XzE4MzVDMDkxLUQxQzctNEJDRC1CRDgyLTdCMEVCOUM1RTJCNCIsImNpZCI6bnVsbCwib3JpZ2luIjp0cnVlLCJyZWYiOm51bGwsImNvbnQiOm51bGwsIm5zIjpmYWxzZX0=; didomi_token=eyJ1c2VyX2lkIjoiMTdiYjMwNjctM2ViNy02ZGUxLWJkN2UtOThjMTZmOTUwYTQ3IiwiY3JlYXRlZCI6IjIwMjEtMDktMDRUMjI6NTU6NTIuNTM4WiIsInVwZGF0ZWQiOiIyMDIxLTA5LTA0VDIyOjU1OjUyLjUzOFoiLCJ2ZW5kb3JzIjp7ImRpc2FibGVkIjpbImFtYXpvbiIsInNhbGVzZm9yY2UiLCJnb29nbGUiLCJjOm5leHQtcGVyZm9ybWFuY2UiLCJjOmNvbGxlY3RpdmUtaGhTWXRSVm4iLCJjOnJvY2t5b3UiLCJjOnB1Ym9jZWFuLWI2QkpNdHNlIiwiYzpydGFyZ2V0LUdlZk1WeWlDIiwiYzpzY2hpYnN0ZWQtTVFQWGFxeWgiLCJjOmdyZWVuaG91c2UtUUtiR0JrczQiLCJjOnJlYWx6ZWl0Zy1iNktDa3h5ViIsImM6dmlkZW8tbWVkaWEtZ3JvdXAiLCJjOnN3aXRjaC1jb25jZXB0cyIsImM6bHVjaWRob2xkLXlmdGJXVGY3IiwiYzpsZW1vbWVkaWEtemJZaHAyUWMiLCJjOnlvcm1lZGlhcy1xbkJXaFF5UyIsImM6c2Fub21hIiwiYzpyYWR2ZXJ0aXMtU0pwYTI1SDgiLCJjOnF3ZXJ0aXplLXpkbmdFMmh4IiwiYzp2ZG9waWEiLCJjOnJldmxpZnRlci1jUnBNbnA1eCIsImM6cmVzZWFyY2gtbm93IiwiYzp3aGVuZXZlcm0tOFZZaHdiMlAiLCJjOmFkbW90aW9uIiwiYzp3b29iaSIsImM6c2hvcHN0eWxlLWZXSksyTGlQIiwiYzp0aGlyZHByZXNlLVNzS3dtSFZLIiwiYzpiMmJtZWRpYS1wUVRGZ3lXayIsImM6cHVyY2giLCJjOmxpZmVzdHJlZXQtbWVkaWEiLCJjOnN5bmMtbjc0WFFwcmciLCJjOmludG93b3dpbi1xYXp0NXRHaSIsImM6ZGlkb21pIiwiYzpyYWRpdW1vbmUiLCJjOmFkb3Rtb2IiLCJjOmFiLXRhc3R5IiwiYzpncmFwZXNob3QiLCJjOmFkbW9iIiwiYzphZGFnaW8iLCJjOmxiY2ZyYW5jZSJdfSwicHVycG9zZXMiOnsiZGlzYWJsZWQiOlsicGVyc29ubmFsaXNhdGlvbmNvbnRlbnUiLCJwZXJzb25uYWxpc2F0aW9ubWFya2V0aW5nIiwicHJpeCIsIm1lc3VyZWF1ZGllbmNlIiwiZXhwZXJpZW5jZXV0aWxpc2F0ZXVyIl19LCJ2ZW5kb3JzX2xpIjp7ImRpc2FibGVkIjpbImdvb2dsZSJdfSwidmVyc2lvbiI6MiwiYWMiOiJBQUFBLkFBQUEifQ==; euconsent-v2=CPMB761PMB761AHABBENBpCgAAAAAAAAAAAAAAAAAABigAMAAQQXGAAYAAgguQAAwABBBcAA.YAAAAAAAAAAA; include_in_experiment=false; utag_main=v_id:017bb3067313001290b3924b212203079001907100838$_sn:1$_ss:0$_pn:2;exp-session$_st:1630797952663$ses_id:1630796149523;exp-session; __Secure-Install=a7693352-c15f-4442-82c1-5e950cc44422; __Secure-Login=' + cookieSecureLogin + '; __Secure-Login-Lax=' + cookieSecureLoginLax + '; datadome=' + cookieDatadome2,
+                        'cookie': '__Secure-InstanceId=e9d0652a-2815-4f24-af08-d41842a9f7f0; ry_ry-l3b0nco_realytics=eyJpZCI6InJ5XzVCOUI1NkMzLTQxQTEtNDMzNS1CMTlGLTg3QTMyN0FFQUEzNSIsImNpZCI6bnVsbCwiZXhwIjoxNjc3NjkzMTA3MDAzLCJjcyI6bnVsbH0%3D; didomi_token=eyJ1c2VyX2lkIjoiMTdmNDY5YzAtNTIzMy02NzU1LWFmMDYtMzIxMWU3ZWM5ZmU4IiwiY3JlYXRlZCI6IjIwMjItMDMtMDFUMTc6NTE6NTMuMDY5WiIsInVwZGF0ZWQiOiIyMDIyLTAzLTAxVDE3OjUxOjUzLjA2OVoiLCJ2ZW5kb3JzIjp7ImRpc2FibGVkIjpbImdvb2dsZSIsImM6cm9ja3lvdSIsImM6cHVib2NlYW4tYjZCSk10c2UiLCJjOnJ0YXJnZXQtR2VmTVZ5aUMiLCJjOnNjaGlic3RlZC1NUVBYYXF5aCIsImM6Z3JlZW5ob3VzZS1RS2JHQmtzNCIsImM6cmVhbHplaXRnLWI2S0NreHlWIiwiYzpsZW1vbWVkaWEtemJZaHAyUWMiLCJjOnlvcm1lZGlhcy1xbkJXaFF5UyIsImM6c2Fub21hIiwiYzpyYWR2ZXJ0aXMtU0pwYTI1SDgiLCJjOnF3ZXJ0aXplLXpkbmdFMmh4IiwiYzpyZXZsaWZ0ZXItY1JwTW5wNXgiLCJjOnJlc2VhcmNoLW5vdyIsImM6d2hlbmV2ZXJtLThWWWh3YjJQIiwiYzphZG1vdGlvbiIsImM6dGhpcmRwcmVzZS1Tc0t3bUhWSyIsImM6aW50b3dvd2luLXFhenQ1dEdpIiwiYzpkaWRvbWkiLCJjOmpxdWVyeSIsImM6YWItdGFzdHkiLCJjOm1vYmlmeSIsImM6bGJjZnJhbmNlIiwiYzpwb3dlcmxpbmstQTNMZURNRjQiXX0sInB1cnBvc2VzIjp7ImRpc2FibGVkIjpbImV4cGVyaWVuY2V1dGlsaXNhdGV1ciIsIm1lc3VyZWF1ZGllbmNlIiwicGVyc29ubmFsaXNhdGlvbm1hcmtldGluZyIsInBlcnNvbm5hbGlzYXRpb25jb250ZW51IiwicHJpeCJdfSwidmVuZG9yc19saSI6eyJkaXNhYmxlZCI6WyJnb29nbGUiXX0sInZlcnNpb24iOjIsImFjIjoiQUFBQS5BQUFBIn0=; euconsent-v2=CPVJdQAPVJdQAAHABBENCECgAAAAAAAAAAAAAAAAAABigAMAAQRLGAAYAAgiWQAAwABBEsAA.YAAAAAAAAAAA; include_in_experiment=false; __Secure-Install=63d0df27-b270-4d3c-ab84-32b22ecaf979; ry_ry-l3b0nco_so_realytics=eyJpZCI6InJ5XzVCOUI1NkMzLTQxQTEtNDMzNS1CMTlGLTg3QTMyN0FFQUEzNSIsImNpZCI6bnVsbCwib3JpZ2luIjp0cnVlLCJyZWYiOm51bGwsImNvbnQiOm51bGwsIm5zIjpmYWxzZX0%3D; utag_main=v_id:017f469c0416001d25e29b616ddc02078001907000838$_sn:4$_ss:0$_st:1646560693018$_pn:4%3Bexp-session$ses_id:1646558883046%3Bexp-session; __Secure-Login=' + cookieSecureLogin + '; __Secure-Login-Lax=' + cookieSecureLoginLax + '; datadome=' + cookieDatadome2,
                     }
                 })
             .then(function (response) {
+                console.log('counter of redirections: ', response.request._redirectable._redirectCount)
+                console.log('apiAuthorizeRequest status code: ', response.status)
+                console.log('apiAuthorizeRequest response headers: ', response.headers)
+
                 const dom = new JSDOM(response.data)
                 const htmlJsElement = dom.window.document.querySelector('#__NEXT_DATA__')
                 resolve(JSON.parse(htmlJsElement.text).query.code)
             })
             .catch(function (error) {
-                console.log('apiAuthorizeRequest error: ', error)
+                console.log('catch apiAuthorizeRequest => get previsionalToken from location header')
+                const urlParams = new URLSearchParams(error.response.headers.location)
+                resolve(urlParams.get('https://www.leboncoin.fr/nextoauth2callback?code'))
             })
     )
 }
 
 function tokenRequest(stateId, temporaryToken) {
+    //console.log('stateId: ', stateId)
+    //console.log('temporaryToken: ', temporaryToken)
     const content = 'code=' + temporaryToken + '&grant_type=authorization_code&redirect_uri=https%3A%2F%2Fwww.leboncoin.fr%2Fnextoauth2callback&client_id=lbc-front-web'
 
     return new Promise((resolve) =>
@@ -277,7 +291,7 @@ function tokenRequest(stateId, temporaryToken) {
                 //resolve(response.data.access_token)
             })
             .catch(function (error) {
-                console.log('tokenRequest error: ', error)
+                console.log('tokenRequest error: ', error.response.status)
             })
     )
 }
@@ -326,7 +340,7 @@ function personalDataRequest(cookieSecureInstall, cookieDatadome2, token) {
                 resolve({accountId, cookieDatadome4, cookies})
             })
             .catch(function (error) {
-                console.log('personalDataRequest error: ', error)
+                console.log('personalDataRequest error: ', error.response.status)
             })
     )
 }
