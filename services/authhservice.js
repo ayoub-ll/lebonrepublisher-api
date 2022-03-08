@@ -47,11 +47,11 @@ async function main(username, password) {
 */
     return Promise.all([
         token,
-        accountId,
-        cookies
+        userAgent,
+        cookiesWithoutDatadome
     ])
         .then((values) => {
-            return {token, accountId, cookies}
+            return {token, userAgent, cookiesWithoutDatadome}
         })
         .catch((reason) => {
             console.log('AUTHH ERROR: ', reason)

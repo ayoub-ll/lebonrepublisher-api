@@ -1,48 +1,51 @@
 const axios = require('axios')
 const randomUseragent = require('random-useragent')
+const {getFreshDatadomeCookie} = require("../utils/cookie");
 
-function getAds(token, accountId) {
-    console.log("token: ", token)
-    console.log("accountId: ", accountId)
-    return new Promise((resolve) =>
-        axios
-            .post('https://api.leboncoin.fr/api/stats/proxy/v2/account/classifieds/analysis/list', {
-                    AccountId: accountId,
-                    Filters: {
-                        Categories: [],
-                        Keywords: "",
-                        State: null
-                    },
-                    Format: "",
-                    Limit: 100,
-                    Page: 1,
-                    SortOrder: "Desc",
-                    SortParam: "LastToplistTime",
-                },
-                {
-                    headers: {
-                        'content-type': 'application/json;charset=UTF-8',
-                        'authority': 'api.leboncoin.fr',
-                        'authorization': token,
-                        'user-agent': randomUseragent.getRandom(),
-                        'sec-gpc': 1,
-                        'origin': 'https://www.leboncoin.fr',
-                        'sec-fetch-site': 'same-site',
-                        'sec-fetch-mode': 'cors',
-                        'sec-fetch-dest': 'empty',
-                        'referer': 'https://www.leboncoin.fr/',
-                        'accept-language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
-                    }
+function getAds(token, userAgent, cookiesWithoutDatadome) {
+    const content = {
+        filters: {},
+        context: "default",
+        limit: 30,
+        offset: 0,
+        sort_by: "date",
+        sort_order: "desc",
+        include_inactive: true,
+        pivot: null
+    }
+
+    return new Promise(async (resolve, reject) => {
+            axios
+                .post('https://api.leboncoin.fr/api/dashboard/v1/search', content,
+                    {
+                        headers: {
+                            'content-type': 'application/json',
+                            'authority': 'api.leboncoin.fr',
+                            'accept': '*/*',
+                            'accept-encoding': 'gzip, deflate, br',
+                            'authorization': 'Bearer ' + token,
+                            'user-agent': userAgent,
+                            'sec-gpc': 1,
+                            'content-length': JSON.stringify(content).length,
+                            'cookie': cookiesWithoutDatadome + await getFreshDatadomeCookie(),
+                            'origin': 'https://www.leboncoin.fr',
+                            'sec-fetch-site': 'same-site',
+                            'sec-fetch-mode': 'cors',
+                            'sec-fetch-dest': 'empty',
+                            'referer': 'https://www.leboncoin.fr/compte/part/mes-annonces',
+                            'accept-language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+                        }
+                    })
+                .then(function (response) {
+                    resolve(response.data.ads)
                 })
-            .then(function (response) {
-                resolve(response.data.Ads)
-            })
-            .catch(function (e) {
-                if (e.response) {
-                    console.log('getAds error HTTP STATUS: ', e.response.status)
-                }
-                throw e
-            })
+                .catch(function (e) {
+                    if (e.response) {
+                        console.log('getAds error HTTP STATUS: ', e.response.status)
+                    }
+                    reject()
+                })
+        }
     )
 }
 

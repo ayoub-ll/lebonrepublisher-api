@@ -100,20 +100,20 @@ app.post('/authh', (req, res) => {
                 console.info('api.js SUCCESS: authService result not null')
                 const token = result.token
 
-                const cookies = result.cookies
-                const accountId = result.accountId
+                const cookiesWithoutDatadome = result.cookiesWithoutDatadome
+                const userAgent = result.userAgent
 
                 if (!token) {
                     res.status(500).json({error: 'Token null'})
                     res.send()
                 } else {
                     res.status(200)
-                    res.send({token, cookies, accountId})
+                    res.send({token, cookiesWithoutDatadome, userAgent})
                 }
             }
         })
         .catch((e) => {
-            console.error("getToken error")
+            console.error("getToken error: ", e)
             res.status(500).json({error: 'serv error'})
             res.send()
             //process.exit()
@@ -131,15 +131,16 @@ app.post('/authh', (req, res) => {
  * - token
  */
 app.post('/getAds', mainMiddlewares.tokenMiddleware, async (req, res) => {
-    let accountId = await req.body.accountId
+    let userAgent = await req.body.userAgent
     let token = await req.body.token
+    let cookiesWithoutDatadome = await req.body.cookiesWithoutDatadome
 
-    if (!accountId) {
-        res.status(400).json({error: 'accountId not found'})
+    if (!token) {
+        res.status(400).json({error: 'token not found'})
         res.send()
     }
 
-    await getAdsService.getAds(token, accountId)
+    await getAdsService.getAds(token, userAgent, cookiesWithoutDatadome)
         .then((result) => {
             res.status(200)
             res.send(result)
@@ -147,7 +148,6 @@ app.post('/getAds', mainMiddlewares.tokenMiddleware, async (req, res) => {
         .catch((e) => {
             res.status(500)
             res.send()
-            process.exit()
         })
 })
 
