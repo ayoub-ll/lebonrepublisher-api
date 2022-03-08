@@ -113,7 +113,7 @@ app.post('/authh', (req, res) => {
             }
         })
         .catch((e) => {
-            console.error("getToken error: ", e)
+            console.error("getToken error")
             res.status(500).json({error: 'serv error'})
             res.send()
             //process.exit()

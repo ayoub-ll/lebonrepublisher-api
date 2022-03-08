@@ -229,7 +229,6 @@ function tokenRequest(stateId, temporaryToken, userAgent) {
 }
 
 async function personalDataRequest(token, userAgent, referer, cookiesWithoutDatadome) {
-    console.log('referer: ', referer)
     return new Promise(async (resolve, reject) =>
         axios
             .get('https://api.leboncoin.fr/api/accounts/v1/accounts/me/personaldata',
@@ -246,7 +245,7 @@ async function personalDataRequest(token, userAgent, referer, cookiesWithoutData
                         'sec-fetch-mode': 'cors',
                         'sec-fetch-dest': 'empty',
                         'referer': referer,
-                        'accept-language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+                        'accept-language': 'fr-FR,fr;q=0.9',
                         'accept-encoding': 'gzip, deflate, br',
                         'cookie': cookiesWithoutDatadome + await getFreshDatadomeCookie(),
                     }
@@ -270,10 +269,10 @@ async function personalDataRequest(token, userAgent, referer, cookiesWithoutData
                                 })
                                  */
 
-                resolve({accountId, cookies})
+                resolve({accountId, cookiesWithoutDatadome})
             })
             .catch(function (error) {
-                console.log("personalDataRequest error: ", error.response.status)
+                console.log("personalDataRequest error: ", error)
                 reject()
             })
     )
