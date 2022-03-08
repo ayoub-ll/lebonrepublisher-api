@@ -1,6 +1,6 @@
 const Jimp = require('jimp')
 const pixelmatch = require('pixelmatch')
-const {cv} = require('opencv-wasm')
+//const {cv} = require('opencv-wasm')
 const randomUseragent = require('random-useragent')
 
 function captchaNeedSlide(frame) {
